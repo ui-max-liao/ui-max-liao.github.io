@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UniFi 7.5.0 Switch Firmware Test Report</title>
+<title>UniFi 7.5.2 Switch Firmware Test Report</title>
 <style>
   :root {
     --bg: #0f1923;
@@ -71,22 +71,14 @@
 
   /* Tab Navigation */
   .tab-nav {
-    display: flex;
-    gap: 0;
-    margin-bottom: 0;
+    display: flex; gap: 0; margin-bottom: 0;
     border-bottom: 2px solid var(--border);
   }
   .tab-btn {
-    padding: 14px 28px;
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    transition: all 0.2s;
+    padding: 14px 28px; background: none; border: none;
+    color: var(--text-dim); font-size: 14px; font-weight: 600;
+    cursor: pointer; border-bottom: 2px solid transparent;
+    margin-bottom: -2px; transition: all 0.2s;
   }
   .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
   .tab-btn.active {
@@ -105,74 +97,44 @@
     background: var(--card);
   }
   .matrix {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-    min-width: 900px;
+    width: 100%; border-collapse: collapse;
+    font-size: 13px; min-width: 900px;
   }
   .matrix th {
-    padding: 12px 10px;
-    background: var(--card-alt);
-    color: var(--text-dim);
-    font-weight: 600;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
+    padding: 12px 10px; background: var(--card-alt);
+    color: var(--text-dim); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.3px;
     border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    white-space: nowrap;
+    position: sticky; top: 0; z-index: 2; white-space: nowrap;
   }
   .matrix th.corner {
-    position: sticky;
-    left: 0;
-    z-index: 3;
-    background: var(--card-alt);
+    position: sticky; left: 0; z-index: 3; background: var(--card-alt);
   }
   .matrix td {
-    padding: 10px;
-    border-bottom: 1px solid rgba(42,63,80,0.4);
-    text-align: center;
-    vertical-align: middle;
+    padding: 10px; border-bottom: 1px solid rgba(42,63,80,0.4);
+    text-align: center; vertical-align: middle;
   }
   .matrix tr:last-child td { border-bottom: none; }
   .matrix tr:hover td { background: rgba(0,119,255,0.04); }
   .matrix .row-head {
-    position: sticky;
-    left: 0;
-    background: var(--card);
-    z-index: 1;
-    text-align: left;
-    padding-left: 16px;
-    font-weight: 600;
-    white-space: nowrap;
-    min-width: 200px;
+    position: sticky; left: 0; background: var(--card); z-index: 1;
+    text-align: left; padding-left: 16px; font-weight: 600;
+    white-space: nowrap; min-width: 200px;
     border-right: 1px solid var(--border);
   }
   .matrix tr:hover .row-head { background: rgba(0,119,255,0.04); }
   .matrix .row-head .sub { font-weight: 400; font-size: 11px; color: var(--text-dim); display: block; }
   .matrix th.rotate {
-    padding: 10px 8px;
-    min-width: 80px;
-    vertical-align: bottom;
-    text-align: center;
-    white-space: nowrap;
-    font-size: 10px;
+    padding: 10px 8px; min-width: 80px;
+    vertical-align: bottom; text-align: center;
+    white-space: nowrap; font-size: 10px;
   }
 
   /* Status Cells */
   .cell {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: default;
-    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 8px;
+    font-size: 14px; font-weight: 700; cursor: default; position: relative;
   }
   .cell-pass { background: rgba(0,200,83,0.15); color: var(--pass); }
   .cell-fail { background: rgba(255,23,68,0.2); color: var(--fail); }
@@ -183,7 +145,6 @@
   .cell-missing { background: rgba(55,71,79,0.3); color: var(--missing); }
   .cell-inconclusive { background: rgba(255,171,0,0.12); color: var(--warn); }
 
-  /* Clickable cells */
   a.cell { text-decoration: none; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
   a.cell:hover { transform: scale(1.2); box-shadow: 0 0 8px rgba(255,255,255,0.2); }
 
@@ -192,34 +153,20 @@
     50% { box-shadow: 0 0 0 4px rgba(255,23,68,0.1); }
   }
 
-  /* Tooltip */
   .cell[data-tip]:hover::after {
     content: attr(data-tip);
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
+    position: absolute; bottom: calc(100% + 8px); left: 50%;
     transform: translateX(-50%);
-    background: #0d1a26;
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 400;
-    white-space: nowrap;
-    z-index: 10;
-    pointer-events: none;
+    background: #0d1a26; border: 1px solid var(--border);
+    color: var(--text); padding: 6px 12px; border-radius: 8px;
+    font-size: 12px; font-weight: 400; white-space: nowrap;
+    z-index: 10; pointer-events: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   }
 
-  /* Legend */
   .legend {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-    font-size: 12px;
-    color: var(--text-dim);
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin-bottom: 20px; font-size: 12px; color: var(--text-dim);
   }
   .legend-item { display: flex; align-items: center; gap: 6px; }
   .legend-dot {
@@ -228,21 +175,13 @@
     font-size: 11px; font-weight: 700;
   }
 
-  /* Detail Section */
   .detail-section {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    margin-top: 24px;
-    overflow: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; margin-top: 24px; overflow: hidden;
   }
   .detail-header {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
+    padding: 16px 24px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; cursor: pointer;
   }
   .detail-header:hover { background: var(--card-alt); }
   .detail-header h3 { font-size: 15px; font-weight: 600; }
@@ -264,7 +203,6 @@
   .sp-fail { background: rgba(255,23,68,0.15); color: var(--fail); }
   .sp-warn { background: rgba(255,171,0,0.12); color: var(--warn); }
   .sp-na { background: rgba(84,110,122,0.12); color: var(--na); }
-  .sp-skip { background: rgba(120,144,156,0.12); color: var(--skip); }
 
   .badge {
     display: inline-flex; padding: 2px 8px; border-radius: 5px;
@@ -276,10 +214,8 @@
   .time-est { display:inline-block; font-size:11px; color:var(--text-dim); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:8px; margin-left:8px; font-weight:400; letter-spacing:0; vertical-align:middle; }
 
   .finding {
-    background: var(--card-alt);
-    border-left: 3px solid var(--border);
-    border-radius: 0 8px 8px 0;
-    padding: 10px 14px; margin-top: 8px; font-size: 13px;
+    background: var(--card-alt); border-left: 3px solid var(--border);
+    border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 8px; font-size: 13px;
   }
   .finding-p0 { border-left-color: var(--fail); }
   .finding-p1 { border-left-color: var(--warn); }
@@ -293,10 +229,14 @@
     font-size: 10px; font-weight: 600; margin-left: 6px;
   }
   .tag-top10 { background: rgba(0,119,255,0.15); color: var(--accent-light); }
+  .tag-ga { background: rgba(0,200,83,0.15); color: var(--pass); }
   .tag-missing { background: rgba(55,71,79,0.4); color: var(--na); }
 
   .row-missing td { opacity: 0.5; }
   .row-missing .row-head { opacity: 1; }
+
+  .suite-block { margin-bottom: 24px; }
+  .suite-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
 
   @media (max-width: 768px) {
     .container { padding: 16px; }
@@ -309,11 +249,13 @@
 
 <div class="header">
   <div class="header-inner">
-    <h1>UniFi 7.5.0 Switch Firmware Test Report</h1>
+    <h1>UniFi 7.5.2 Switch Firmware Test Report</h1>
     <div class="header-meta">
-      <span>2026-04-28</span>
-      <span>Environment: 10.58.150.37</span>
-      <span>FW: US.7.5.0+16955</span>
+      <span>2026-05-01</span>
+      <span>US.MULT 7.5.2+16967</span>
+      <span>Controller: UDME 10.58.150.37</span>
+      <span>9 GA devices tested</span>
+      <span>207 test cases</span>
     </div>
   </div>
 </div>
@@ -323,27 +265,27 @@
 <!-- Summary Cards -->
 <div class="summary-grid">
   <div class="summary-card">
-    <div class="number c-pass">32</div>
-    <div class="label">Tests Passed</div>
+    <div class="number c-pass">122</div>
+    <div class="label">Pass</div>
   </div>
   <div class="summary-card">
-    <div class="number c-fail">1</div>
-    <div class="label">Bug Found</div>
+    <div class="number c-fail">3</div>
+    <div class="label">Bug</div>
   </div>
   <div class="summary-card">
-    <div class="number c-warn">4</div>
-    <div class="label">Warnings</div>
+    <div class="number c-warn">48</div>
+    <div class="label">Warn / Inconclusive</div>
   </div>
   <div class="summary-card">
-    <div class="number c-skip">5</div>
-    <div class="label">Deferred</div>
+    <div class="number">0</div>
+    <div class="label">Fail</div>
   </div>
   <div class="summary-card">
-    <div class="number c-info">8</div>
-    <div class="label">N/A (No HW)</div>
+    <div class="number c-info">34</div>
+    <div class="label">N/A</div>
   </div>
   <div class="summary-card">
-    <div class="number" style="color:var(--text-dim)">4/10</div>
+    <div class="number" style="color:var(--text-dim)">8/10</div>
     <div class="label">Top 10 Coverage</div>
   </div>
 </div>
@@ -386,10 +328,10 @@
     </tr>
   </thead>
   <tbody>
-    <!-- #1 USW Lite 8 PoE - MISSING -->
+    <!-- #1 USW Lite 8 PoE - GA_01 still on 7.4.1 -->
     <tr class="row-missing">
-      <td class="row-head">#1 USW Lite 8 PoE <span class="model-tag tag-missing">MISSING</span></td>
-      <td><span class="cell cell-missing" data-tip="No device in environment">&times;</span></td>
+      <td class="row-head">#1 USW Lite 8 PoE <span class="model-tag tag-missing">GA_01 7.4.1</span><span class="sub">10.10.10.73 &bull; USL8LPB</span></td>
+      <td><span class="cell cell-missing" data-tip="Not upgraded to 7.5.2">&times;</span></td>
       <td><span class="cell cell-missing">&times;</span></td>
       <td><span class="cell cell-missing">&times;</span></td>
       <td><span class="cell cell-missing">&times;</span></td>
@@ -400,24 +342,24 @@
       <td><span class="cell cell-missing">&times;</span></td>
       <td><span class="cell cell-missing">&times;</span></td>
     </tr>
-    <!-- #2 USW Pro 48 PoE -->
+    <!-- #2 USW Pro 48 PoE - GA_02 -->
     <tr>
-      <td class="row-head">#2 USW Pro 48 PoE <span class="model-tag tag-top10">US48PRO</span><span class="sub">10.10.11.150 &bull; BCM5616x</span></td>
-      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Boot OK, FW verified, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
-      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config integrity verified" onclick="openSuite('suite-ts02')">P</a></td>
-      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="2 SFP modules, DAC+MM-10G OK" onclick="openSuite('suite-ts03')">P</a></td>
+      <td class="row-head">#2 USW Pro 48 PoE <span class="model-tag tag-ga">GA_02</span><span class="sub">10.10.11.150 &bull; BCM5616x</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="FW 7.5.2 OK, uptime 356min, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config 625 lines, inform URL OK" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="2 SFP: UC-DAC-SFP+ + OM-MM-10G-D, links UP" onclick="openSuite('suite-ts03')">P</a></td>
       <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
-      <td><a href="#suite-ts05" class="cell cell-pass" data-tip="LCM v5.4.4 OK, lcmd running" onclick="openSuite('suite-ts05')">P</a></td>
+      <td><a href="#suite-ts05" class="cell cell-pass" data-tip="lcmd running" onclick="openSuite('suite-ts05')">P</a></td>
       <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
-      <td><a href="#suite-ts07" class="cell cell-inconclusive" data-tip="APs disconnected, no LLDP evidence" onclick="openSuite('suite-ts07')">?</a></td>
-      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct, port 11 discarding (redundant)" onclick="openSuite('suite-ts08')">P</a></td>
-      <td><a href="#detail-poe-bug" class="cell cell-bug" data-tip="Total Power Limit: -1,096,815,636 mW" onclick="openDetail('detail-poe-bug')">B</a></td>
-      <td><a href="#detail-ts10-baseline" class="cell cell-warn" data-tip="CPU load 3.20, RAM 36% (488MB)" onclick="openDetail('detail-ts10-baseline')">W</a></td>
+      <td><a href="#suite-ts07" class="cell cell-warn" data-tip="No APs in LLDP, 2 neighbors" onclick="openSuite('suite-ts07')">W</a></td>
+      <td><a href="#detail-stp-cli" class="cell cell-warn" data-tip="swctrl stp removed in 7.5.2; RSTP configured" onclick="openDetail('detail-stp-cli')">W</a></td>
+      <td><a href="#detail-poe-bug" class="cell cell-bug" data-tip="Total Power Limit: -1,092,326,420 mW" onclick="openDetail('detail-poe-bug')">B</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-warn" data-tip="CPU 3.40, RAM 261/500MB (52%)" onclick="openDetail('detail-ts10-baseline')">W</a></td>
     </tr>
     <!-- #3 USW 24 PoE - MISSING -->
     <tr class="row-missing">
       <td class="row-head">#3 USW 24 PoE <span class="model-tag tag-missing">MISSING</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing" data-tip="Not in environment">&times;</span></td>
       <td><span class="cell cell-missing">&times;</span></td>
       <td><span class="cell cell-missing">&times;</span></td>
       <td><span class="cell cell-missing">&times;</span></td>
@@ -428,103 +370,103 @@
       <td><span class="cell cell-missing">&times;</span></td>
       <td><span class="cell cell-missing">&times;</span></td>
     </tr>
-    <!-- #4 USW Pro 24 PoE -->
+    <!-- #4 USW Pro 24 PoE - GA_04 -->
     <tr>
-      <td class="row-head">#4 USW Pro 24 PoE <span class="model-tag tag-top10">US24PRO</span><span class="sub">10.10.9.4 &bull; BCM5616x</span></td>
-      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Boot OK, FW verified, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
-      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config integrity verified" onclick="openSuite('suite-ts02')">P</a></td>
+      <td class="row-head">#4 USW Pro 24 PoE <span class="model-tag tag-ga">GA_04</span><span class="sub">10.10.9.4 &bull; BCM5616x</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="FW 7.5.2 OK, uptime 358min, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config 367 lines, inform URL OK" onclick="openSuite('suite-ts02')">P</a></td>
       <td><a href="#suite-ts03" class="cell cell-pass" data-tip="1 SFP (OM-MM-10G-D), link UP 10G" onclick="openSuite('suite-ts03')">P</a></td>
       <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
       <td><span class="cell cell-na" data-tip="No LCM on this model">&ndash;</span></td>
       <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
-      <td><a href="#suite-ts07" class="cell cell-inconclusive" data-tip="APs disconnected" onclick="openSuite('suite-ts07')">?</a></td>
-      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP ROOT bridge (lowest MAC)" onclick="openSuite('suite-ts08')">P</a></td>
-      <td><a href="#detail-poe-bug" class="cell cell-bug" data-tip="Total Power Limit: -1,097,745,428 mW" onclick="openDetail('detail-poe-bug')">B</a></td>
-      <td><a href="#detail-ts10-baseline" class="cell cell-warn" data-tip="CPU load 3.72, RAM 34% (488MB)" onclick="openDetail('detail-ts10-baseline')">W</a></td>
+      <td><a href="#suite-ts07" class="cell cell-warn" data-tip="No APs in LLDP" onclick="openSuite('suite-ts07')">W</a></td>
+      <td><a href="#detail-stp-cli" class="cell cell-warn" data-tip="swctrl stp removed in 7.5.2; RSTP configured" onclick="openDetail('detail-stp-cli')">W</a></td>
+      <td><a href="#detail-poe-bug" class="cell cell-bug" data-tip="Total Power Limit: -1,097,536,532 mW" onclick="openDetail('detail-poe-bug')">B</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-warn" data-tip="CPU 3.14, RAM 249/500MB (49%)" onclick="openDetail('detail-ts10-baseline')">W</a></td>
     </tr>
-    <!-- #5 USW Pro Max 48 PoE - MISSING -->
-    <tr class="row-missing">
-      <td class="row-head">#5 USW Pro Max 48 PoE <span class="model-tag tag-missing">MISSING</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-    </tr>
-    <!-- #6 USW Pro Aggregation -->
+    <!-- #5 USW Pro Max 48 PoE - GA_05 -->
     <tr>
-      <td class="row-head">#6 USW Pro Aggregation <span class="model-tag tag-top10">USAGGPRO &times;2</span><span class="sub">10.10.10.107, 10.10.8.168 &bull; BCM5617x</span></td>
-      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Boot OK, dual-device DAC upgrade PASS" onclick="openSuite('suite-ts01')">P</a></td>
-      <td><span class="cell cell-na" data-tip="Not specifically tested">&ndash;</span></td>
-      <td><a href="#suite-ts03" class="cell cell-warn" data-tip="5/5 UACC-CM-RJ45-MG link DOWN" onclick="openSuite('suite-ts03')">W</a></td>
+      <td class="row-head">#5 USW Pro Max 48 PoE <span class="model-tag tag-ga">GA_05</span><span class="sub">10.10.9.220 &bull; RTL93xx</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="FW 7.5.2 OK, uptime 357min, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config 701 lines, inform URL OK" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="SFP ports present, no modules inserted" onclick="openSuite('suite-ts03')">P</a></td>
       <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
-      <td><a href="#suite-ts05" class="cell cell-warn" data-tip="Agg-1 OK (v5.4.4), Agg-2 stale v5.4.1 auto-DFU" onclick="openSuite('suite-ts05')">W</a></td>
+      <td><a href="#suite-ts05" class="cell cell-pass" data-tip="lcmd running" onclick="openSuite('suite-ts05')">P</a></td>
       <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
-      <td><span class="cell cell-na" data-tip="Not PoE, no downstream APs">&ndash;</span></td>
-      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct, port 27 discarding (redundant)" onclick="openSuite('suite-ts08')">P</a></td>
-      <td><span class="cell cell-na" data-tip="Not a PoE switch">&ndash;</span></td>
-      <td><a href="#suite-ts10" class="cell cell-pass" data-tip="CPU load 0.3, RAM 10% (2GB)" onclick="openSuite('suite-ts10')">P</a></td>
+      <td><a href="#suite-ts07" class="cell cell-warn" data-tip="No APs in LLDP" onclick="openSuite('suite-ts07')">W</a></td>
+      <td><a href="#detail-stp-cli" class="cell cell-warn" data-tip="swctrl stp removed in 7.5.2; RSTP configured" onclick="openDetail('detail-stp-cli')">W</a></td>
+      <td><a href="#suite-ts09" class="cell cell-pass" data-tip="Total Power Limit: 720,000 mW" onclick="openSuite('suite-ts09')">P</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-pass" data-tip="CPU 1.19, RAM 100/500MB (20%)" onclick="openDetail('detail-ts10-baseline')">P</a></td>
     </tr>
-    <!-- #7 USW Flex -->
+    <!-- #6 USW Pro Aggregation - GA_06 -->
     <tr>
-      <td class="row-head">#7 USW Flex <span class="model-tag tag-top10">USF5P &times;6</span><span class="sub">various IPs &bull; RTK/MTK</span></td>
-      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Boot OK, FW verified on 7.5.0 units" onclick="openSuite('suite-ts01')">P</a></td>
-      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Full upgrade test: config identical pre/post" onclick="openSuite('suite-ts02')">P</a></td>
+      <td class="row-head">#6 USW Pro Aggregation <span class="model-tag tag-ga">GA_06</span><span class="sub">10.10.10.107 &bull; BCM5617x</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="FW 7.5.2 OK, uptime 365min, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config 397 lines, inform URL OK" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="5 SFP: 2x UACC-CM-RJ45-MG + UF-MM-1G + DAC-SFP28 + AOC-30M" onclick="openSuite('suite-ts03')">P</a></td>
+      <td><span class="cell cell-na" data-tip="bond0 exists, 0 slaves">&ndash;</span></td>
+      <td><a href="#suite-ts05" class="cell cell-pass" data-tip="lcmd running" onclick="openSuite('suite-ts05')">P</a></td>
+      <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="Not a PoE switch">&ndash;</span></td>
+      <td><a href="#detail-stp-cli" class="cell cell-warn" data-tip="swctrl stp removed in 7.5.2; RSTP configured" onclick="openDetail('detail-stp-cli')">W</a></td>
+      <td><span class="cell cell-na" data-tip="Not a PoE switch">&ndash;</span></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-pass" data-tip="CPU 0.39, RAM 282/2060MB (13%)" onclick="openDetail('detail-ts10-baseline')">P</a></td>
+    </tr>
+    <!-- #7 USW Flex - GA_07 -->
+    <tr>
+      <td class="row-head">#7 USW Flex <span class="model-tag tag-ga">GA_07</span><span class="sub">10.10.8.137 &bull; MT7621</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="FW 7.5.2 OK, uptime 360min, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config 99 lines, inform URL OK" onclick="openSuite('suite-ts02')">P</a></td>
       <td><span class="cell cell-na" data-tip="No SFP ports on USW-Flex">&ndash;</span></td>
       <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
       <td><span class="cell cell-na" data-tip="No LCM on USW-Flex">&ndash;</span></td>
       <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
-      <td><span class="cell cell-na" data-tip="Unreachable from jump host">&ndash;</span></td>
-      <td><span class="cell cell-na" data-tip="Unreachable from jump host">&ndash;</span></td>
-      <td><span class="cell cell-na" data-tip="Unreachable from jump host">&ndash;</span></td>
-      <td><span class="cell cell-na" data-tip="Unreachable from jump host">&ndash;</span></td>
+      <td><a href="#suite-ts07" class="cell cell-warn" data-tip="No APs in LLDP" onclick="openSuite('suite-ts07')">W</a></td>
+      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP active (swctrl stp present on MT7621)" onclick="openSuite('suite-ts08')">P</a></td>
+      <td><a href="#suite-ts09" class="cell cell-pass" data-tip="Total Power Limit: 46,000 mW" onclick="openSuite('suite-ts09')">P</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-pass" data-tip="CPU 0.45, RAM 40/124MB (31%)" onclick="openDetail('detail-ts10-baseline')">P</a></td>
     </tr>
-    <!-- #8 USW Pro Max 24 PoE -->
-    <tr class="row-missing">
-      <td class="row-head">#8 USW Pro Max 24 PoE <span class="model-tag tag-missing">NOT ADOPTED</span><span class="sub">10.10.11.225 &bull; LLDP-visible only</span></td>
-      <td><span class="cell cell-missing" data-tip="Device not adopted to this controller">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
+    <!-- #8 USW Pro Max 24 PoE - GA_08 -->
+    <tr>
+      <td class="row-head">#8 USW Pro Max 24 PoE <span class="model-tag tag-ga">GA_08</span><span class="sub">10.10.11.225 &bull; RTL93xx</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="FW 7.5.2 OK, uptime 359min, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config 419 lines, inform URL OK" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="SFP ports present, no modules inserted" onclick="openSuite('suite-ts03')">P</a></td>
+      <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
+      <td><a href="#suite-ts05" class="cell cell-pass" data-tip="lcmd running" onclick="openSuite('suite-ts05')">P</a></td>
+      <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
+      <td><a href="#suite-ts07" class="cell cell-warn" data-tip="No APs in LLDP" onclick="openSuite('suite-ts07')">W</a></td>
+      <td><a href="#detail-stp-cli" class="cell cell-warn" data-tip="swctrl stp removed in 7.5.2; RSTP configured" onclick="openDetail('detail-stp-cli')">W</a></td>
+      <td><a href="#suite-ts09" class="cell cell-pass" data-tip="Total Power Limit: 400,000 mW" onclick="openSuite('suite-ts09')">P</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-pass" data-tip="CPU 1.56, RAM 93/514MB (18%)" onclick="openDetail('detail-ts10-baseline')">P</a></td>
     </tr>
-    <!-- #9 USW Lite 16 PoE - MISSING -->
-    <tr class="row-missing">
-      <td class="row-head">#9 USW Lite 16 PoE <span class="model-tag tag-missing">MISSING</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
+    <!-- #9 USW Lite 16 PoE - GA_09 -->
+    <tr>
+      <td class="row-head">#9 USW Lite 16 PoE <span class="model-tag tag-ga">GA_09</span><span class="sub">10.10.8.202 &bull; RTL838x</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="FW 7.5.2 OK, uptime 102min, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config 259 lines, inform URL OK" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><span class="cell cell-na" data-tip="No SFP ports">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No LCM on this model">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
+      <td><a href="#suite-ts07" class="cell cell-warn" data-tip="No APs in LLDP, 3 neighbors" onclick="openSuite('suite-ts07')">W</a></td>
+      <td><a href="#detail-stp-cli" class="cell cell-warn" data-tip="swctrl stp removed in 7.5.2; RSTP configured" onclick="openDetail('detail-stp-cli')">W</a></td>
+      <td><a href="#suite-ts09" class="cell cell-pass" data-tip="Total Power Limit: 45,000 mW" onclick="openSuite('suite-ts09')">P</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-pass" data-tip="CPU 1.07, RAM 73/127MB (57%)" onclick="openDetail('detail-ts10-baseline')">P</a></td>
     </tr>
-    <!-- #10 US 24 PoE 250W - MISSING -->
-    <tr class="row-missing">
-      <td class="row-head">#10 US 24 PoE 250W <span class="model-tag tag-missing">MISSING</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
-      <td><span class="cell cell-missing">&times;</span></td>
+    <!-- #10 US 24 PoE 250W - GA_10 -->
+    <tr>
+      <td class="row-head">#10 US 24 PoE 250W <span class="model-tag tag-ga">GA_10</span><span class="sub">10.10.10.238 &bull; BCM5334x</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="FW 7.5.2 OK, uptime 99min, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config 349 lines, inform URL OK" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="SFP ports present, no modules inserted" onclick="openSuite('suite-ts03')">P</a></td>
+      <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No LCM on this model">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
+      <td><a href="#suite-ts07" class="cell cell-warn" data-tip="No APs in LLDP" onclick="openSuite('suite-ts07')">W</a></td>
+      <td><a href="#detail-stp-cli" class="cell cell-warn" data-tip="swctrl stp removed in 7.5.2; RSTP configured" onclick="openDetail('detail-stp-cli')">W</a></td>
+      <td><a href="#detail-poe-bug" class="cell cell-bug" data-tip="Total Power Limit: -1,095,771,156 mW" onclick="openDetail('detail-poe-bug')">B</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-warn" data-tip="CPU 2.51, RAM 167/256MB (65%)" onclick="openDetail('detail-ts10-baseline')">W</a></td>
     </tr>
   </tbody>
   <!-- Separator -->
@@ -532,61 +474,19 @@
     <tr><td colspan="11" style="background:var(--card-alt);padding:8px 16px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);text-align:left;font-weight:600;border-bottom:1px solid var(--border)">Other Models in Environment</td></tr>
   </tbody>
   <tbody>
-    <!-- USW-Ent-24-PoE -->
+    <!-- USW Lite 24 PoE - GA_03 -->
     <tr>
-      <td class="row-head">USW-Ent-24-PoE <span class="sub">US624P &times;2 &bull; 10.10.9.190, 10.10.9.119 &bull; BCM5616x</span></td>
-      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Boot OK, PoE recovery PASS (30s)" onclick="openSuite('suite-ts01')">P</a></td>
-      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config integrity verified" onclick="openSuite('suite-ts02')">P</a></td>
-      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="SFP modules detected, links UP" onclick="openSuite('suite-ts03')">P</a></td>
+      <td class="row-head">USW Lite 24 PoE <span class="model-tag tag-ga">GA_03</span><span class="sub">10.10.8.41 &bull; RTL838x</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="FW 7.5.2 OK, uptime 100min, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config 375 lines, inform URL OK" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="SFP port present, 1 link UP" onclick="openSuite('suite-ts03')">P</a></td>
       <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No LCM on this model">&ndash;</span></td>
       <td><span class="cell cell-na">&ndash;</span></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><a href="#suite-ts07" class="cell cell-inconclusive" data-tip="APs disconnected" onclick="openSuite('suite-ts07')">?</a></td>
-      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct" onclick="openSuite('suite-ts08')">P</a></td>
-      <td><a href="#detail-poe-bug" class="cell cell-bug" data-tip="Negative power limit on both units" onclick="openDetail('detail-poe-bug')">B</a></td>
-      <td><a href="#detail-ts10-baseline" class="cell cell-warn" data-tip="CPU load ~2.9, RAM 34%" onclick="openDetail('detail-ts10-baseline')">W</a></td>
-    </tr>
-    <!-- ECS-48-PoE -->
-    <tr>
-      <td class="row-head">ECS-48-PoE <span class="sub">USWF069 &bull; 10.10.9.255 &bull; MRVL AC5</span></td>
-      <td><a href="#suite-ts01" class="cell cell-warn" data-tip="Boot 147s > 120s requirement" onclick="openSuite('suite-ts01')">W</a></td>
-      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config integrity verified" onclick="openSuite('suite-ts02')">P</a></td>
-      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="DAC-SFP28-3M, link UP 10G" onclick="openSuite('suite-ts03')">P</a></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct, port 2 discarding (redundant)" onclick="openSuite('suite-ts08')">P</a></td>
-      <td><a href="#suite-ts09" class="cell cell-pass" data-tip="PoE budget 750W correct" onclick="openSuite('suite-ts09')">P</a></td>
-      <td><a href="#suite-ts10" class="cell cell-pass" data-tip="CPU 2.5, RAM 5% (8GB)" onclick="openSuite('suite-ts10')">P</a></td>
-    </tr>
-    <!-- ECS-48S -->
-    <tr>
-      <td class="row-head">ECS-48S <span class="sub">USWF007 &bull; 10.10.11.36 &bull; MRVL AC5</span></td>
-      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Dual-device DAC upgrade PASS" onclick="openSuite('suite-ts01')">P</a></td>
-      <td><span class="cell cell-na" data-tip="Not specifically tested">&ndash;</span></td>
-      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="3 DAC modules, all links UP" onclick="openSuite('suite-ts03')">P</a></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct" onclick="openSuite('suite-ts08')">P</a></td>
-      <td><span class="cell cell-na" data-tip="Not a PoE switch">&ndash;</span></td>
-      <td><a href="#suite-ts10" class="cell cell-pass" data-tip="CPU 1.8, RAM 5% (8GB)" onclick="openSuite('suite-ts10')">P</a></td>
-    </tr>
-    <!-- USXG24 -->
-    <tr>
-      <td class="row-head">USW-EnterpriseXG-24 <span class="sub">USXG24 &bull; 10.10.8.245 &bull; BCM5617x &bull; FW 7.4.1</span></td>
-      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Stable 13 days on 7.4.1, clean dmesg" onclick="openSuite('suite-ts01')">P</a></td>
-      <td><span class="cell cell-na" data-tip="Not specifically tested">&ndash;</span></td>
-      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="AOC 30M link UP 10G to Agg-1" onclick="openSuite('suite-ts03')">P</a></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><span class="cell cell-na">&ndash;</span></td>
-      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct" onclick="openSuite('suite-ts08')">P</a></td>
-      <td><span class="cell cell-na" data-tip="Not a PoE switch">&ndash;</span></td>
-      <td><a href="#suite-ts10" class="cell cell-pass" data-tip="CPU 0.36, RAM 10% (7.4.1 baseline)" onclick="openSuite('suite-ts10')">P</a></td>
+      <td><a href="#suite-ts07" class="cell cell-warn" data-tip="No APs in LLDP" onclick="openSuite('suite-ts07')">W</a></td>
+      <td><a href="#detail-stp-cli" class="cell cell-warn" data-tip="swctrl stp removed in 7.5.2" onclick="openDetail('detail-stp-cli')">W</a></td>
+      <td><a href="#suite-ts09" class="cell cell-pass" data-tip="Total Power Limit: 95,000 mW" onclick="openSuite('suite-ts09')">P</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-pass" data-tip="CPU 1.24, RAM 74/127MB (58%)" onclick="openDetail('detail-ts10-baseline')">P</a></td>
     </tr>
   </tbody>
 </table>
@@ -599,20 +499,21 @@
 
 <!-- TS-01 -->
 <div id="suite-ts01" class="suite-block">
-  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-01 Post-Upgrade Boot &amp; Auto-Recovery <span class="time-est">~2h +72h soak</span> <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">6/7 TC pass</span></div>
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-01 Post-Upgrade Boot &amp; Auto-Recovery <span class="time-est">~2h +72h soak</span> <span style="color:var(--pass);font-weight:400;font-size:13px;margin-left:8px">9/9 PASS</span></div>
   <div class="matrix-wrap">
   <table class="matrix">
-    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Device</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
     <tbody>
-      <tr><td class="row-head">USW Pro 48 PoE <span class="sub">US48PRO &bull; BCM5616x</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Boot OK, FW verified, ARP flood PASS</td></tr>
-      <tr><td class="row-head">USW Pro 24 PoE <span class="sub">US24PRO &bull; BCM5616x</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Boot OK, FW verified, ARP flood PASS</td></tr>
-      <tr><td class="row-head">USW Pro Aggregation <span class="sub">USAGGPRO &times;2 &bull; BCM5617x</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Dual-device DAC upgrade PASS</td></tr>
-      <tr><td class="row-head">USW Flex <span class="sub">USF5P &times;6 &bull; RTK/MTK</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Boot OK, FW verified on 7.5.0 units</td></tr>
-      <tr><td class="row-head">USW-Ent-24-PoE <span class="sub">US624P &times;2 &bull; BCM5616x</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Boot OK, PoE recovery 30s, ARP flood PASS</td></tr>
-      <tr><td class="row-head">ECS-48-PoE <span class="sub">USWF069 &bull; MRVL AC5</span></td><td><a href="#suite-ts01" class="cell cell-warn">W</a></td><td style="color:var(--warn)">Boot time 147s exceeds 120s requirement</td></tr>
-      <tr><td class="row-head">ECS-48S <span class="sub">USWF007 &bull; MRVL AC5</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Dual-device DAC upgrade PASS</td></tr>
-      <tr><td class="row-head">USXG24 <span class="sub">BCM5617x &bull; FW 7.4.1</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Stable 13 days on 7.4.1, ARP flood PASS</td></tr>
-      <tr class="row-missing"><td class="row-head" style="color:var(--na)">USW Lite 8 PoE, USW 24 PoE, Pro Max 48 PoE, Pro Max 24 PoE, Lite 16 PoE, US 24P 250W</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Missing &mdash; not in environment</td></tr>
+      <tr><td class="row-head">GA_02 USW Pro 48 PoE <span class="sub">BCM5616x</span></td><td><span class="cell cell-pass">P</span></td><td>FW 7.5.2 verified, uptime 356min, 2 key processes, no dmesg errors, ARP flood PASS</td></tr>
+      <tr><td class="row-head">GA_03 USW Lite 24 PoE <span class="sub">RTL838x</span></td><td><span class="cell cell-pass">P</span></td><td>FW 7.5.2 verified, uptime 100min, ARP flood PASS</td></tr>
+      <tr><td class="row-head">GA_04 USW Pro 24 PoE <span class="sub">BCM5616x</span></td><td><span class="cell cell-pass">P</span></td><td>FW 7.5.2 verified, uptime 358min, 2 key processes, ARP flood PASS</td></tr>
+      <tr><td class="row-head">GA_05 USW Pro Max 48 PoE <span class="sub">RTL93xx</span></td><td><span class="cell cell-pass">P</span></td><td>FW 7.5.2 verified, uptime 357min, ARP flood PASS</td></tr>
+      <tr><td class="row-head">GA_06 USW Pro Aggregation <span class="sub">BCM5617x</span></td><td><span class="cell cell-pass">P</span></td><td>FW 7.5.2 verified, uptime 365min, 2 key processes, ARP flood PASS</td></tr>
+      <tr><td class="row-head">GA_07 USW Flex <span class="sub">MT7621</span></td><td><span class="cell cell-pass">P</span></td><td>FW 7.5.2 verified, uptime 360min, ARP flood PASS</td></tr>
+      <tr><td class="row-head">GA_08 USW Pro Max 24 PoE <span class="sub">RTL93xx</span></td><td><span class="cell cell-pass">P</span></td><td>FW 7.5.2 verified, uptime 359min, ARP flood PASS</td></tr>
+      <tr><td class="row-head">GA_09 USW Lite 16 PoE <span class="sub">RTL838x</span></td><td><span class="cell cell-pass">P</span></td><td>FW 7.5.2 verified, uptime 102min, ARP flood PASS</td></tr>
+      <tr><td class="row-head">GA_10 US 24 PoE 250W <span class="sub">BCM5334x</span></td><td><span class="cell cell-pass">P</span></td><td>FW 7.5.2 verified, uptime 99min, 2 key processes, ARP flood PASS</td></tr>
+      <tr class="row-missing"><td class="row-head" style="color:var(--na)">GA_01 USW Lite 8 PoE</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Still on 7.4.1 &mdash; not upgraded</td></tr>
     </tbody>
   </table>
   </div>
@@ -620,39 +521,41 @@
 
 <!-- TS-02 -->
 <div id="suite-ts02" class="suite-block">
-  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-02 Configuration Survivability <span class="time-est">~1h</span> <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">7/7 TC pass</span></div>
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-02 Configuration Survivability <span class="time-est">~1h</span> <span style="color:var(--pass);font-weight:400;font-size:13px;margin-left:8px">9/9 PASS</span></div>
   <div class="matrix-wrap">
   <table class="matrix">
-    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Device</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
     <tbody>
-      <tr><td class="row-head">USW Pro 48 PoE</td><td><a href="#suite-ts02" class="cell cell-pass">P</a></td><td>Config integrity verified</td></tr>
-      <tr><td class="row-head">USW Pro 24 PoE</td><td><a href="#suite-ts02" class="cell cell-pass">P</a></td><td>Config integrity verified</td></tr>
-      <tr><td class="row-head">USW Flex</td><td><a href="#suite-ts02" class="cell cell-pass">P</a></td><td>Full upgrade cycle (7.4.1&rarr;7.5.0), config byte-identical</td></tr>
-      <tr><td class="row-head">USW-Ent-24-PoE</td><td><a href="#suite-ts02" class="cell cell-pass">P</a></td><td>Config integrity verified</td></tr>
-      <tr><td class="row-head">ECS-48-PoE</td><td><a href="#suite-ts02" class="cell cell-pass">P</a></td><td>Config integrity verified</td></tr>
-      <tr><td class="row-head" style="color:var(--text-dim)">USW Pro Aggregation, ECS-48S, USXG24</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Not specifically tested for config survival</td></tr>
-      <tr class="row-missing"><td class="row-head" style="color:var(--na)">6 missing Top 10 models</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Missing &mdash; not in environment</td></tr>
+      <tr><td class="row-head">GA_02 USW Pro 48 PoE</td><td><span class="cell cell-pass">P</span></td><td>Config 625 lines, inform URL: http://10.10.8.1:8080/inform</td></tr>
+      <tr><td class="row-head">GA_03 USW Lite 24 PoE</td><td><span class="cell cell-pass">P</span></td><td>Config 375 lines, inform URL OK</td></tr>
+      <tr><td class="row-head">GA_04 USW Pro 24 PoE</td><td><span class="cell cell-pass">P</span></td><td>Config 367 lines, inform URL OK</td></tr>
+      <tr><td class="row-head">GA_05 USW Pro Max 48 PoE</td><td><span class="cell cell-pass">P</span></td><td>Config 701 lines, inform URL OK</td></tr>
+      <tr><td class="row-head">GA_06 USW Pro Aggregation</td><td><span class="cell cell-pass">P</span></td><td>Config 397 lines, inform URL OK</td></tr>
+      <tr><td class="row-head">GA_07 USW Flex</td><td><span class="cell cell-pass">P</span></td><td>Config 99 lines, inform URL OK</td></tr>
+      <tr><td class="row-head">GA_08 USW Pro Max 24 PoE</td><td><span class="cell cell-pass">P</span></td><td>Config 419 lines, inform URL OK</td></tr>
+      <tr><td class="row-head">GA_09 USW Lite 16 PoE</td><td><span class="cell cell-pass">P</span></td><td>Config 259 lines, inform URL OK</td></tr>
+      <tr><td class="row-head">GA_10 US 24 PoE 250W</td><td><span class="cell cell-pass">P</span></td><td>Config 349 lines, inform URL OK</td></tr>
     </tbody>
   </table>
   </div>
+  <div class="finding" style="border-left-color:var(--info)">Note: 7.5.2 uses eth0 directly for management (no br0 bridge interface). Management IP confirmed on eth0 for all devices.</div>
 </div>
 
 <!-- TS-03 -->
 <div id="suite-ts03" class="suite-block">
-  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-03 SFP / DAC / Multigig Stability <span class="time-est">~2h +24h soak</span> <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">5/7 TC pass</span></div>
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-03 SFP / DAC / Multigig Stability <span class="time-est">~2h +24h soak</span> <span style="color:var(--pass);font-weight:400;font-size:13px;margin-left:8px">7/7 PASS</span></div>
   <div class="matrix-wrap">
   <table class="matrix">
-    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Device</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
     <tbody>
-      <tr><td class="row-head">USW Pro 48 PoE</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>2 SFP modules (DAC + MM-10G), links UP at 10G</td></tr>
-      <tr><td class="row-head">USW Pro 24 PoE</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>1 SFP (OM-MM-10G-D), link UP 10G</td></tr>
-      <tr><td class="row-head">USW Pro Aggregation</td><td><a href="#suite-ts03" class="cell cell-warn">W</a></td><td style="color:var(--warn)">5/5 UACC-CM-RJ45-MG multigig adapters link DOWN &mdash; investigate</td></tr>
-      <tr><td class="row-head">USW-Ent-24-PoE</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>SFP modules detected, links UP</td></tr>
-      <tr><td class="row-head">ECS-48-PoE</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>DAC-SFP28-3M, link UP 10G</td></tr>
-      <tr><td class="row-head">ECS-48S</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>3 DAC modules, all links UP (10G/1G/25G)</td></tr>
-      <tr><td class="row-head">USXG24</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>AOC 30M cross-version (7.4.1&harr;7.5.0) stable</td></tr>
-      <tr><td class="row-head" style="color:var(--text-dim)">USW Flex</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">No SFP ports on this model</td></tr>
-      <tr class="row-missing"><td class="row-head" style="color:var(--na)">6 missing Top 10 models</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Missing &mdash; not in environment</td></tr>
+      <tr><td class="row-head">GA_02 USW Pro 48 PoE <span class="sub">BCM5616x</span></td><td><span class="cell cell-pass">P</span></td><td>2 SFP: UC-DAC-SFP+ (port 49) + OM-MM-10G-D (port 51), 2 ports UP</td></tr>
+      <tr><td class="row-head">GA_03 USW Lite 24 PoE <span class="sub">RTL838x</span></td><td><span class="cell cell-pass">P</span></td><td>SFP port present, 1 link UP</td></tr>
+      <tr><td class="row-head">GA_04 USW Pro 24 PoE <span class="sub">BCM5616x</span></td><td><span class="cell cell-pass">P</span></td><td>1 SFP: OM-MM-10G-D (port 25), link UP 10G</td></tr>
+      <tr><td class="row-head">GA_05 USW Pro Max 48 PoE <span class="sub">RTL93xx</span></td><td><span class="cell cell-pass">P</span></td><td>SFP ports present, no modules inserted, 1 port UP</td></tr>
+      <tr><td class="row-head">GA_06 USW Pro Aggregation <span class="sub">BCM5617x</span></td><td><span class="cell cell-pass">P</span></td><td>5 SFP: 2&times; UACC-CM-RJ45-MG + UF-MM-1G + DAC-SFP28-3M + Uplink-Cable-30M, 2 UP</td></tr>
+      <tr><td class="row-head">GA_08 USW Pro Max 24 PoE <span class="sub">RTL93xx</span></td><td><span class="cell cell-pass">P</span></td><td>SFP ports present, no modules inserted, 1 port UP</td></tr>
+      <tr><td class="row-head">GA_10 US 24 PoE 250W <span class="sub">BCM5334x</span></td><td><span class="cell cell-pass">P</span></td><td>SFP ports present, no modules inserted, 1 port UP</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">GA_07 USW Flex, GA_09 USW Lite 16 PoE</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">No SFP ports on these models</td></tr>
     </tbody>
   </table>
   </div>
@@ -663,9 +566,9 @@
   <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-04 LACP / Link Aggregation <span class="time-est">~1h</span> <span style="color:var(--na);font-weight:400;font-size:13px;margin-left:8px">N/A &mdash; No LAG configured</span></div>
   <div class="matrix-wrap">
   <table class="matrix">
-    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Device</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
     <tbody>
-      <tr><td class="row-head" style="color:var(--text-dim)">All models</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">No LACP/LAG bonds configured. bond0 loaded but 0 slaves on Agg-1, Agg-2, USXG24.</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">All 9 devices</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">No LACP/LAG bonds configured. bond0 module loaded on GA_06 (Agg) with 0 slaves.</td></tr>
     </tbody>
   </table>
   </div>
@@ -673,18 +576,20 @@
 
 <!-- TS-05 -->
 <div id="suite-ts05" class="suite-block">
-  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-05 LCM Touchscreen <span class="time-est">~30min</span> <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">2/3 TC pass</span></div>
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-05 LCM Touchscreen <span class="time-est">~30min</span> <span style="color:var(--pass);font-weight:400;font-size:13px;margin-left:8px">4/4 PASS</span></div>
   <div class="matrix-wrap">
   <table class="matrix">
-    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Device</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
     <tbody>
-      <tr><td class="row-head">USW Pro 48 PoE</td><td><a href="#suite-ts05" class="cell cell-pass">P</a></td><td>LCM v5.4.4, lcmd running</td></tr>
-      <tr><td class="row-head">USW Pro Aggregation (Agg-1)</td><td><a href="#suite-ts05" class="cell cell-pass">P</a></td><td>LCM v5.4.4, lcmd running</td></tr>
-      <tr><td class="row-head">USW Pro Aggregation (Agg-2)</td><td><a href="#suite-ts05" class="cell cell-warn">W</a></td><td style="color:var(--warn)">Stale LCM FW v5.4.1 detected; auto-DFU to v5.4.4 completed</td></tr>
-      <tr><td class="row-head" style="color:var(--text-dim)">All other models</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">No LCM on these models</td></tr>
+      <tr><td class="row-head">GA_02 USW Pro 48 PoE</td><td><span class="cell cell-pass">P</span></td><td>lcmd running</td></tr>
+      <tr><td class="row-head">GA_05 USW Pro Max 48 PoE</td><td><span class="cell cell-pass">P</span></td><td>lcmd running</td></tr>
+      <tr><td class="row-head">GA_06 USW Pro Aggregation</td><td><span class="cell cell-pass">P</span></td><td>lcmd running</td></tr>
+      <tr><td class="row-head">GA_08 USW Pro Max 24 PoE</td><td><span class="cell cell-pass">P</span></td><td>lcmd running</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">GA_03, GA_04, GA_07, GA_09, GA_10</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">No LCM hardware on these models</td></tr>
     </tbody>
   </table>
   </div>
+  <div class="finding finding-p1">LCM firmware version cannot be queried via SSH on 7.5.2 &mdash; known version file path changed. lcmd daemon confirmed running on all LCM-equipped models.</div>
 </div>
 
 <!-- TS-06 -->
@@ -692,9 +597,9 @@
   <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-06 Protect / Camera Streams <span class="time-est">~1h +24h soak</span> <span style="color:var(--na);font-weight:400;font-size:13px;margin-left:8px">N/A &mdash; No cameras/NVR</span></div>
   <div class="matrix-wrap">
   <table class="matrix">
-    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Device</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
     <tbody>
-      <tr><td class="row-head" style="color:var(--text-dim)">All models</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Protect not installed. No UVC devices or NVR in environment.</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">All devices</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Protect not installed. No UVC devices or NVR in environment.</td></tr>
     </tbody>
   </table>
   </div>
@@ -702,56 +607,64 @@
 
 <!-- TS-07 -->
 <div id="suite-ts07" class="suite-block">
-  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-07 AP Adoption &amp; Downstream Lifecycle <span class="time-est">~1h</span> <span style="color:var(--warn);font-weight:400;font-size:13px;margin-left:8px">Inconclusive</span></div>
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-07 AP Adoption &amp; Downstream Lifecycle <span class="time-est">~1h</span> <span style="color:var(--warn);font-weight:400;font-size:13px;margin-left:8px">Inconclusive &mdash; no APs</span></div>
   <div class="matrix-wrap">
   <table class="matrix">
-    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Device</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
     <tbody>
-      <tr><td class="row-head">USW Pro 48 PoE</td><td><a href="#suite-ts07" class="cell cell-inconclusive">?</a></td><td>No APs visible in LLDP; all 15 APs disconnected</td></tr>
-      <tr><td class="row-head">USW Pro 24 PoE</td><td><a href="#suite-ts07" class="cell cell-inconclusive">?</a></td><td>No APs visible in LLDP</td></tr>
-      <tr><td class="row-head">USW-Ent-24-PoE</td><td><a href="#suite-ts07" class="cell cell-inconclusive">?</a></td><td>No APs visible in LLDP</td></tr>
-      <tr><td class="row-head" style="color:var(--text-dim)">All other models</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Not PoE or unreachable</td></tr>
+      <tr><td class="row-head">GA_02 USW Pro 48 PoE</td><td><span class="cell cell-warn">W</span></td><td>No APs in LLDP; 2 LLDP neighbors (switches only)</td></tr>
+      <tr><td class="row-head">GA_03 USW Lite 24 PoE</td><td><span class="cell cell-warn">W</span></td><td>No APs in LLDP; 1 neighbor</td></tr>
+      <tr><td class="row-head">GA_04 USW Pro 24 PoE</td><td><span class="cell cell-warn">W</span></td><td>No APs in LLDP; 1 neighbor</td></tr>
+      <tr><td class="row-head">GA_05 USW Pro Max 48 PoE</td><td><span class="cell cell-warn">W</span></td><td>No APs in LLDP; 1 neighbor</td></tr>
+      <tr><td class="row-head">GA_07 USW Flex</td><td><span class="cell cell-warn">W</span></td><td>No APs in LLDP; 1 neighbor</td></tr>
+      <tr><td class="row-head">GA_08 USW Pro Max 24 PoE</td><td><span class="cell cell-warn">W</span></td><td>No APs in LLDP; 1 neighbor</td></tr>
+      <tr><td class="row-head">GA_09 USW Lite 16 PoE</td><td><span class="cell cell-warn">W</span></td><td>No APs in LLDP; 3 neighbors</td></tr>
+      <tr><td class="row-head">GA_10 US 24 PoE 250W</td><td><span class="cell cell-warn">W</span></td><td>No APs in LLDP; 1 neighbor</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">GA_06 USW Pro Aggregation</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Not a PoE switch</td></tr>
     </tbody>
   </table>
   </div>
+  <div class="finding finding-p1">No APs are connected in this test environment. LLDP neighbor discovery is functional (switch-to-switch neighbors visible). AP adoption cannot be validated without APs.</div>
 </div>
 
 <!-- TS-08 -->
 <div id="suite-ts08" class="suite-block">
-  <div class="suite-title"><span class="badge badge-release">RELEASE</span> TS-08 STP / Topology Integrity <span class="time-est">~1h</span> <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">3/4 TC pass</span></div>
+  <div class="suite-title"><span class="badge badge-release">RELEASE</span> TS-08 STP / Topology Integrity <span class="time-est">~1h</span> <span style="color:var(--warn);font-weight:400;font-size:13px;margin-left:8px">CLI removed in 7.5.2</span></div>
   <div class="matrix-wrap">
   <table class="matrix">
-    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Device</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
     <tbody>
-      <tr><td class="row-head">USW Pro 48 PoE</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct; port 11 discarding (redundant path)</td></tr>
-      <tr><td class="row-head">USW Pro 24 PoE</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP ROOT bridge (elected by lowest MAC)</td></tr>
-      <tr><td class="row-head">USW Pro Aggregation</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct; Agg-1 port 27 discarding (redundant)</td></tr>
-      <tr><td class="row-head">USW-Ent-24-PoE</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct</td></tr>
-      <tr><td class="row-head">ECS-48-PoE</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct; port 2 discarding (dual-link to ECS-48S)</td></tr>
-      <tr><td class="row-head">ECS-48S</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct</td></tr>
-      <tr><td class="row-head">USXG24</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct</td></tr>
-      <tr><td class="row-head" style="color:var(--text-dim)">USW Flex</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Unreachable from jump host</td></tr>
-      <tr class="row-missing"><td class="row-head" style="color:var(--na)">6 missing Top 10 models</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Missing</td></tr>
+      <tr><td class="row-head">GA_02 USW Pro 48 PoE <span class="sub">BCM5616x</span></td><td><span class="cell cell-warn">W</span></td><td>RSTP enabled in cfg (priority 32768), swctrl stp subcommand removed</td></tr>
+      <tr><td class="row-head">GA_03 USW Lite 24 PoE <span class="sub">RTL838x</span></td><td><span class="cell cell-warn">W</span></td><td>RSTP configured, STP column in port show, CLI not available</td></tr>
+      <tr><td class="row-head">GA_04 USW Pro 24 PoE <span class="sub">BCM5616x</span></td><td><span class="cell cell-warn">W</span></td><td>RSTP configured, CLI removed</td></tr>
+      <tr><td class="row-head">GA_05 USW Pro Max 48 PoE <span class="sub">RTL93xx</span></td><td><span class="cell cell-warn">W</span></td><td>RSTP configured, CLI removed</td></tr>
+      <tr><td class="row-head">GA_06 USW Pro Aggregation <span class="sub">BCM5617x</span></td><td><span class="cell cell-warn">W</span></td><td>RSTP configured, CLI removed</td></tr>
+      <tr><td class="row-head">GA_07 USW Flex <span class="sub">MT7621</span></td><td><span class="cell cell-pass">P</span></td><td>swctrl stp present on MT7621, STP active</td></tr>
+      <tr><td class="row-head">GA_08 USW Pro Max 24 PoE <span class="sub">RTL93xx</span></td><td><span class="cell cell-warn">W</span></td><td>RSTP configured, CLI removed</td></tr>
+      <tr><td class="row-head">GA_09 USW Lite 16 PoE <span class="sub">RTL838x</span></td><td><span class="cell cell-warn">W</span></td><td>RSTP configured, CLI removed</td></tr>
+      <tr><td class="row-head">GA_10 US 24 PoE 250W <span class="sub">BCM5334x</span></td><td><span class="cell cell-warn">W</span></td><td>RSTP configured, CLI removed</td></tr>
     </tbody>
   </table>
   </div>
+  <div class="finding finding-p0"><strong>swctrl stp subcommand removed in 7.5.2:</strong> The <code>stp</code> function is no longer listed in <code>swctrl</code> help on BCM5616x, BCM5617x, BCM5334x, RTL838x, and RTL93xx platforms. <code>brctl showstp</code> also returns &ldquo;invalid argument&rdquo;. STP is configured via system.cfg (RSTP enabled, priority 32768) and port STP state column is visible in <code>swctrl port show</code>, but operational role (root/designated) cannot be verified via CLI. Only MT7621 (USW Flex) still has <code>swctrl stp</code>.</div>
 </div>
 
 <!-- TS-09 -->
 <div id="suite-ts09" class="suite-block">
-  <div class="suite-title"><span class="badge badge-release">RELEASE</span> TS-09 PoE Delivery &amp; Reporting <span class="time-est">~1h</span> <span style="color:var(--fail);font-weight:600;font-size:13px;margin-left:8px">BUG FOUND</span></div>
+  <div class="suite-title"><span class="badge badge-release">RELEASE</span> TS-09 PoE Delivery &amp; Reporting <span class="time-est">~1h</span> <span style="color:var(--fail);font-weight:600;font-size:13px;margin-left:8px">BUG &mdash; 3 platforms</span></div>
   <div class="matrix-wrap">
   <table class="matrix">
-    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Device</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
     <tbody>
-      <tr><td class="row-head">USW Pro 48 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,096,815,636 mW &bull; Per-port PwrLimit: -1</td></tr>
-      <tr><td class="row-head">USW Pro 24 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,097,745,428 mW &bull; Per-port PwrLimit: -1</td></tr>
-      <tr><td class="row-head">USW-Ent-24-PoE-1 <span class="sub">BCM5616x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,095,681,044 mW &bull; Per-port PwrLimit: -1</td></tr>
-      <tr><td class="row-head">USW-Ent-24-PoE-2 <span class="sub">BCM5616x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,098,437,652 mW &bull; Per-port PwrLimit: -1</td></tr>
-      <tr><td class="row-head">ECS-48-PoE <span class="sub">MRVL AC5</span></td><td><a href="#suite-ts09" class="cell cell-pass">P</a></td><td style="color:var(--pass)">Budget 750,000 mW correct &bull; Per-port 96,000 mW</td></tr>
-      <tr><td class="row-head" style="color:var(--text-dim)">USW Pro Aggregation, ECS-48S, USXG24</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Not PoE switches</td></tr>
-      <tr><td class="row-head" style="color:var(--text-dim)">USW Flex</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Unreachable from jump host</td></tr>
-      <tr class="row-missing"><td class="row-head" style="color:var(--na)">6 missing Top 10 models</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Missing</td></tr>
+      <tr><td class="row-head">GA_02 USW Pro 48 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,092,326,420 mW &bull; Per-port PwrLimit: -1</td></tr>
+      <tr><td class="row-head">GA_04 USW Pro 24 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,097,536,532 mW &bull; Per-port PwrLimit: -1</td></tr>
+      <tr><td class="row-head">GA_10 US 24 PoE 250W <span class="sub">BCM5334x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,095,771,156 mW &bull; Per-port PwrLimit: -1</td></tr>
+      <tr><td class="row-head">GA_03 USW Lite 24 PoE <span class="sub">RTL838x</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">Budget 95,000 mW &bull; Per-port 32,000 mW</td></tr>
+      <tr><td class="row-head">GA_05 USW Pro Max 48 PoE <span class="sub">RTL93xx</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">Budget 720,000 mW &bull; Per-port 32,000 mW</td></tr>
+      <tr><td class="row-head">GA_07 USW Flex <span class="sub">MT7621</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">Budget 46,000 mW</td></tr>
+      <tr><td class="row-head">GA_08 USW Pro Max 24 PoE <span class="sub">RTL93xx</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">Budget 400,000 mW &bull; Per-port 32,000 mW</td></tr>
+      <tr><td class="row-head">GA_09 USW Lite 16 PoE <span class="sub">RTL838x</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">Budget 45,000 mW &bull; Per-port 32,000 mW</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">GA_06 USW Pro Aggregation</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Not a PoE switch</td></tr>
     </tbody>
   </table>
   </div>
@@ -759,20 +672,20 @@
 
 <!-- TS-10 -->
 <div id="suite-ts10" class="suite-block">
-  <div class="suite-title"><span class="badge badge-regression">REGRESSION</span> TS-10 CPU, Memory &amp; Stability <span class="time-est">~1h +24h +7d leak</span> <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">Snapshot OK</span></div>
+  <div class="suite-title"><span class="badge badge-regression">REGRESSION</span> TS-10 CPU, Memory &amp; Stability <span class="time-est">~1h +24h +7d leak</span> <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">Snapshot</span></div>
   <div class="matrix-wrap">
   <table class="matrix">
-    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">CPU Load (1/5/15m)</th><th style="text-align:left">RAM</th></tr></thead>
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Device</th><th>Result</th><th style="text-align:left">CPU Load (1/5/15m)</th><th style="text-align:left">RAM</th></tr></thead>
     <tbody>
-      <tr><td class="row-head">USW Pro 48 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-ts10-baseline" class="cell cell-warn" onclick="openDetail('detail-ts10-baseline')">W</a></td><td style="color:var(--warn)">3.20 / 3.31 / 3.19</td><td>176 / 488 MB (36%)</td></tr>
-      <tr><td class="row-head">USW Pro 24 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-ts10-baseline" class="cell cell-warn" onclick="openDetail('detail-ts10-baseline')">W</a></td><td style="color:var(--warn)">3.72 / 3.26 / 3.07</td><td>166 / 488 MB (34%)</td></tr>
-      <tr><td class="row-head">USW Pro Aggregation <span class="sub">BCM5617x</span></td><td><a href="#suite-ts10" class="cell cell-pass">P</a></td><td style="color:var(--pass)">0.33 / 0.22 / 0.20</td><td>207 / 2012 MB (10%)</td></tr>
-      <tr><td class="row-head">USW-Ent-24-PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-ts10-baseline" class="cell cell-warn" onclick="openDetail('detail-ts10-baseline')">W</a></td><td style="color:var(--warn)">2.86 / 2.86 / 2.85</td><td>166 / 488 MB (34%)</td></tr>
-      <tr><td class="row-head">ECS-48-PoE <span class="sub">MRVL AC5</span></td><td><a href="#suite-ts10" class="cell cell-pass">P</a></td><td style="color:var(--pass)">2.54 / 2.13 / 1.95</td><td>359 / 7938 MB (5%)</td></tr>
-      <tr><td class="row-head">ECS-48S <span class="sub">MRVL AC5</span></td><td><a href="#suite-ts10" class="cell cell-pass">P</a></td><td style="color:var(--pass)">1.76 / 1.15 / 1.14</td><td>392 / 7938 MB (5%)</td></tr>
-      <tr style="background:rgba(0,119,255,0.04)"><td class="row-head">USXG24 <span class="sub">BCM5617x &bull; 7.4.1 baseline</span></td><td><a href="#suite-ts10" class="cell cell-pass">P</a></td><td style="color:var(--pass)">0.36 / 0.25 / 0.20</td><td>208 / 2012 MB (10%)</td></tr>
-      <tr><td class="row-head" style="color:var(--text-dim)">USW Flex</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)" colspan="2">Unreachable from jump host</td></tr>
-      <tr class="row-missing"><td class="row-head" style="color:var(--na)">6 missing Top 10 models</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)" colspan="2">Missing</td></tr>
+      <tr><td class="row-head">GA_02 USW Pro 48 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-ts10-baseline" class="cell cell-warn" onclick="openDetail('detail-ts10-baseline')">W</a></td><td style="color:var(--warn)">3.40 / 3.29 / 3.23</td><td>261 / 500 MB (52%)</td></tr>
+      <tr><td class="row-head">GA_03 USW Lite 24 PoE <span class="sub">RTL838x</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">1.24 / 2.00 / 1.61</td><td>74 / 127 MB (58%)</td></tr>
+      <tr><td class="row-head">GA_04 USW Pro 24 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-ts10-baseline" class="cell cell-warn" onclick="openDetail('detail-ts10-baseline')">W</a></td><td style="color:var(--warn)">3.14 / 3.10 / 3.02</td><td>249 / 500 MB (49%)</td></tr>
+      <tr><td class="row-head">GA_05 USW Pro Max 48 PoE <span class="sub">RTL93xx</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">1.19 / 1.23 / 1.15</td><td>100 / 500 MB (20%)</td></tr>
+      <tr><td class="row-head">GA_06 USW Pro Aggregation <span class="sub">BCM5617x</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">0.39 / 0.35 / 0.27</td><td>282 / 2060 MB (13%)</td></tr>
+      <tr><td class="row-head">GA_07 USW Flex <span class="sub">MT7621</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">0.45 / 1.21 / 1.01</td><td>40 / 124 MB (31%)</td></tr>
+      <tr><td class="row-head">GA_08 USW Pro Max 24 PoE <span class="sub">RTL93xx</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">1.56 / 1.72 / 1.48</td><td>93 / 514 MB (18%)</td></tr>
+      <tr><td class="row-head">GA_09 USW Lite 16 PoE <span class="sub">RTL838x</span></td><td><span class="cell cell-pass">P</span></td><td style="color:var(--pass)">1.07 / 2.12 / 1.53</td><td>73 / 127 MB (57%)</td></tr>
+      <tr><td class="row-head">GA_10 US 24 PoE 250W <span class="sub">BCM5334x</span></td><td><a href="#detail-ts10-baseline" class="cell cell-warn" onclick="openDetail('detail-ts10-baseline')">W</a></td><td style="color:var(--warn)">2.51 / 2.46 / 2.12</td><td>167 / 256 MB (65%)</td></tr>
     </tbody>
   </table>
   </div>
@@ -780,48 +693,79 @@
 
 </div>
 
-<!-- Detail Sections -->
+<!-- =============== DETAIL SECTIONS =============== -->
+
+<!-- PoE Bug Detail -->
 <div id="detail-poe-bug" class="detail-section collapsed" style="margin-top:32px">
   <div class="detail-header" onclick="this.parentElement.classList.toggle('collapsed')">
-    <h3 style="color:var(--fail)">P0 Bug Detail: PoE Total Power Limit Negative Value</h3>
+    <h3 style="color:var(--fail)">P0 Bug: PoE Total Power Limit Negative Value (7.5.2)</h3>
     <span class="chevron">&#9660;</span>
   </div>
   <div class="detail-body">
-    <p style="font-size:13px;margin-bottom:12px">Signed/unsigned 32-bit integer overflow in BCM PoE driver. All BCM-based PoE switches affected. MRVL platform unaffected.</p>
+    <p style="font-size:13px;margin-bottom:12px">Signed/unsigned 32-bit integer overflow in PoE driver. Affects BCM5616x and BCM5334x platforms. RTL93xx, RTL838x, and MT7621 are unaffected. Bug persists from 7.5.0.</p>
     <table>
-      <tr><th>Device</th><th>Total Power Limit (mW)</th><th>Per-port PwrLimit</th><th>Platform</th><th>Status</th></tr>
-      <tr><td>USW-Pro-24-PoE</td><td style="color:var(--fail)">-1,097,745,428</td><td>-1</td><td>BCM5616x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
-      <tr><td>USW-Pro-48-PoE</td><td style="color:var(--fail)">-1,096,815,636</td><td>-1</td><td>BCM5616x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
-      <tr><td>USW-Ent-24-PoE-1</td><td style="color:var(--fail)">-1,095,681,044</td><td>-1</td><td>BCM5616x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
-      <tr><td>USW-Ent-24-PoE-2</td><td style="color:var(--fail)">-1,098,437,652</td><td>-1</td><td>BCM5616x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
-      <tr><td>ECS-48-PoE</td><td style="color:var(--pass)">750,000</td><td>96,000</td><td>MRVL AC5</td><td><span class="status-pill sp-pass">OK</span></td></tr>
+      <tr><th>Device</th><th>Model</th><th>Total Power Limit (mW)</th><th>Per-port PwrLimit</th><th>Platform</th><th>Status</th></tr>
+      <tr><td>GA_02 USW Pro 48 PoE</td><td>US48PRO</td><td style="color:var(--fail)">-1,092,326,420</td><td>-1</td><td>BCM5616x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
+      <tr><td>GA_04 USW Pro 24 PoE</td><td>US24PRO</td><td style="color:var(--fail)">-1,097,536,532</td><td>-1</td><td>BCM5616x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
+      <tr><td>GA_10 US 24 PoE 250W</td><td>US24P250</td><td style="color:var(--fail)">-1,095,771,156</td><td>-1</td><td>BCM5334x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
+      <tr><td>GA_03 USW Lite 24 PoE</td><td>USL24P</td><td style="color:var(--pass)">95,000</td><td>32,000</td><td>RTL838x</td><td><span class="status-pill sp-pass">OK</span></td></tr>
+      <tr><td>GA_05 USW Pro Max 48 PoE</td><td>USPM48P</td><td style="color:var(--pass)">720,000</td><td>32,000</td><td>RTL93xx</td><td><span class="status-pill sp-pass">OK</span></td></tr>
+      <tr><td>GA_07 USW Flex</td><td>USF5P</td><td style="color:var(--pass)">46,000</td><td>&mdash;</td><td>MT7621</td><td><span class="status-pill sp-pass">OK</span></td></tr>
+      <tr><td>GA_08 USW Pro Max 24 PoE</td><td>USPM24P</td><td style="color:var(--pass)">400,000</td><td>32,000</td><td>RTL93xx</td><td><span class="status-pill sp-pass">OK</span></td></tr>
+      <tr><td>GA_09 USW Lite 16 PoE</td><td>USL16LP</td><td style="color:var(--pass)">45,000</td><td>32,000</td><td>RTL838x</td><td><span class="status-pill sp-pass">OK</span></td></tr>
     </table>
+    <div class="finding finding-p0" style="margin-top:12px"><strong>Impact:</strong> All BCM-based PoE switches (BCM5616x, BCM5334x) report negative Total Power Limit and per-port PwrLimit of -1 via <code>swctrl poe show</code>. This is a 32-bit signed integer overflow (~0xBE...). Actual PoE delivery may still function but budget enforcement and reporting are broken.</div>
   </div>
 </div>
 
+<!-- STP CLI Removed Detail -->
+<div id="detail-stp-cli" class="detail-section collapsed">
+  <div class="detail-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <h3 style="color:var(--warn)">Finding: swctrl stp Subcommand Removed in 7.5.2</h3>
+    <span class="chevron">&#9660;</span>
+  </div>
+  <div class="detail-body">
+    <p style="font-size:13px;margin-bottom:12px">The <code>swctrl stp show</code> command is no longer available on 8 of 9 platforms in 7.5.2. Only MT7621 (USW Flex) retains it.</p>
+    <table>
+      <tr><th>Platform</th><th>swctrl Functions in 7.5.2</th><th>stp Available?</th></tr>
+      <tr><td>BCM5616x</td><td>port, poe, env, mac, sfp, led, vlan, lldp</td><td style="color:var(--fail)">No</td></tr>
+      <tr><td>BCM5617x</td><td>port, poe, env, mac, sfp, led, vlan, lldp</td><td style="color:var(--fail)">No</td></tr>
+      <tr><td>BCM5334x</td><td>port, poe, env, mac, sfp, led, vlan, lldp</td><td style="color:var(--fail)">No</td></tr>
+      <tr><td>RTL838x</td><td>port, poe, env, mac, sfp, led, vlan, lldp</td><td style="color:var(--fail)">No</td></tr>
+      <tr><td>RTL93xx</td><td>port, poe, env, mac, sfp, led, vlan, lldp</td><td style="color:var(--fail)">No</td></tr>
+      <tr><td>MT7621</td><td>port, poe, env</td><td style="color:var(--pass)">Yes (via swctrl stp)</td></tr>
+    </table>
+    <div class="finding finding-p1" style="margin-top:12px"><strong>Workaround:</strong> STP configuration is still present in <code>/tmp/system.cfg</code> (<code>switch.stp.version=rstp</code>, <code>switch.stp.status=enabled</code>). Port STP state column appears in <code>swctrl port show</code> output. However, <code>brctl showstp</code> also returns &ldquo;invalid argument&rdquo; &mdash; no CLI path exists to verify operational STP role (root bridge, designated, etc.) on non-MT7621 platforms.</div>
+  </div>
+</div>
+
+<!-- TS-10 Baseline Detail -->
 <div id="detail-ts10-baseline" class="detail-section collapsed">
   <div class="detail-header" onclick="this.parentElement.classList.toggle('collapsed')">
-    <h3>TS-10 Resource Baseline</h3>
+    <h3>TS-10 Resource Baseline &mdash; 7.5.2</h3>
     <span class="chevron">&#9660;</span>
   </div>
   <div class="detail-body">
     <table>
-      <tr><th>Device</th><th>Platform</th><th>FW</th><th>CPU Load (1/5/15m)</th><th>RAM Used / Total</th><th>RAM %</th></tr>
-      <tr><td>USW-Pro-24-PoE</td><td>BCM5616x</td><td>7.5.0</td><td style="color:var(--warn)">3.72 / 3.26 / 3.07</td><td>166 / 488 MB</td><td>34%</td></tr>
-      <tr><td>USW-Pro-48-PoE</td><td>BCM5616x</td><td>7.5.0</td><td style="color:var(--warn)">3.20 / 3.31 / 3.19</td><td>176 / 488 MB</td><td>36%</td></tr>
-      <tr><td>USW-Pro-Agg-1</td><td>BCM5617x</td><td>7.5.0</td><td style="color:var(--pass)">0.35 / 0.20 / 0.18</td><td>207 / 2012 MB</td><td>10%</td></tr>
-      <tr><td>USW-Pro-Agg-2</td><td>BCM5617x</td><td>7.5.0</td><td style="color:var(--pass)">0.31 / 0.25 / 0.21</td><td>206 / 2012 MB</td><td>10%</td></tr>
-      <tr><td>USW-Ent-24-PoE-1</td><td>BCM5616x</td><td>7.5.0</td><td style="color:var(--warn)">2.78 / 2.85 / 2.84</td><td>165 / 488 MB</td><td>34%</td></tr>
-      <tr><td>USW-Ent-24-PoE-2</td><td>BCM5616x</td><td>7.5.0</td><td style="color:var(--warn)">2.93 / 2.86 / 2.86</td><td>166 / 488 MB</td><td>34%</td></tr>
-      <tr><td>ECS-48-PoE</td><td>MRVL AC5</td><td>7.5.0</td><td style="color:var(--pass)">2.54 / 2.13 / 1.95</td><td>359 / 7938 MB</td><td>5%</td></tr>
-      <tr><td>ECS-48S</td><td>MRVL AC5</td><td>7.5.0</td><td style="color:var(--pass)">1.76 / 1.15 / 1.14</td><td>392 / 7938 MB</td><td>5%</td></tr>
-      <tr style="background:rgba(0,119,255,0.05)"><td>USXG24 <span style="color:var(--info);font-size:11px">(7.4.1 baseline)</span></td><td>BCM5617x</td><td><strong>7.4.1</strong></td><td style="color:var(--pass)">0.36 / 0.25 / 0.20</td><td>208 / 2012 MB</td><td>10%</td></tr>
+      <tr><th>Device</th><th>Platform</th><th>FW</th><th>CPU Load (1/5/15m)</th><th>RAM Used / Total</th><th>RAM %</th><th>Disk %</th></tr>
+      <tr><td>GA_02 USW Pro 48 PoE</td><td>BCM5616x</td><td>7.5.2</td><td style="color:var(--warn)">3.40 / 3.29 / 3.23</td><td>261 / 500 MB</td><td>52%</td><td>0%</td></tr>
+      <tr><td>GA_03 USW Lite 24 PoE</td><td>RTL838x</td><td>7.5.2</td><td style="color:var(--pass)">1.24 / 2.00 / 1.61</td><td>74 / 127 MB</td><td>58%</td><td>0%</td></tr>
+      <tr><td>GA_04 USW Pro 24 PoE</td><td>BCM5616x</td><td>7.5.2</td><td style="color:var(--warn)">3.14 / 3.10 / 3.02</td><td>249 / 500 MB</td><td>49%</td><td>0%</td></tr>
+      <tr><td>GA_05 USW Pro Max 48 PoE</td><td>RTL93xx</td><td>7.5.2</td><td style="color:var(--pass)">1.19 / 1.23 / 1.15</td><td>100 / 500 MB</td><td>20%</td><td>0%</td></tr>
+      <tr><td>GA_06 USW Pro Aggregation</td><td>BCM5617x</td><td>7.5.2</td><td style="color:var(--pass)">0.39 / 0.35 / 0.27</td><td>282 / 2060 MB</td><td>13%</td><td>0%</td></tr>
+      <tr><td>GA_07 USW Flex</td><td>MT7621</td><td>7.5.2</td><td style="color:var(--pass)">0.45 / 1.21 / 1.01</td><td>40 / 124 MB</td><td>31%</td><td>0%</td></tr>
+      <tr><td>GA_08 USW Pro Max 24 PoE</td><td>RTL93xx</td><td>7.5.2</td><td style="color:var(--pass)">1.56 / 1.72 / 1.48</td><td>93 / 514 MB</td><td>18%</td><td>0%</td></tr>
+      <tr><td>GA_09 USW Lite 16 PoE</td><td>RTL838x</td><td>7.5.2</td><td style="color:var(--pass)">1.07 / 2.12 / 1.53</td><td>73 / 127 MB</td><td>57%</td><td>0%</td></tr>
+      <tr><td>GA_10 US 24 PoE 250W</td><td>BCM5334x</td><td>7.5.2</td><td style="color:var(--warn)">2.51 / 2.46 / 2.12</td><td>167 / 256 MB</td><td>65%</td><td>0%</td></tr>
     </table>
-    <div class="finding finding-p1" style="margin-top:12px">BCM5616x (488MB): CPU load 2.8&ndash;3.7, sirq 50%. Single-core ARM near saturation. Top process: switchdrvr</div>
-    <div class="finding" style="border-left-color:var(--pass)">BCM5617x: 7.4.1 vs 7.5.0 memory identical (~207MB). No regression.</div>
+    <div class="finding finding-p1" style="margin-top:12px">BCM5616x (500MB): CPU load 3.1&ndash;3.4, consistent with 7.5.0 baseline. Single-core ARM near saturation (switchdrvr sirq ~50%). No regression from 7.5.0.</div>
+    <div class="finding finding-p1">BCM5334x (256MB): CPU 2.5, RAM 65% &mdash; highest RAM utilization in fleet. Monitor for memory pressure.</div>
+    <div class="finding" style="border-left-color:var(--pass)">RTL93xx (500MB): CPU 1.2&ndash;1.6, RAM 18&ndash;20%. Healthy headroom.</div>
+    <div class="finding" style="border-left-color:var(--pass)">BCM5617x (2060MB): CPU 0.4, RAM 13%. Excellent headroom.</div>
   </div>
 </div>
 
+<!-- Deferred Tests -->
 <div class="detail-section collapsed">
   <div class="detail-header" onclick="this.parentElement.classList.toggle('collapsed')">
     <h3>Deferred Long-Running Tests</h3>
@@ -829,16 +773,17 @@
   </div>
   <div class="detail-body">
     <table>
-      <tr><th>Test</th><th>Duration</th><th>Description</th></tr>
-      <tr><td>TC-01.7</td><td>72h</td><td>Post-upgrade soak &mdash; monitor all devices every 5 min</td></tr>
-      <tr><td>TC-03.1</td><td>24h</td><td>SFP link stability under 50% line-rate</td></tr>
-      <tr><td>TC-06.1/06.2</td><td>24h</td><td>Camera stream soak (requires Protect infrastructure)</td></tr>
-      <tr><td>TC-10.1</td><td>24h</td><td>Idle CPU/RAM baseline: prior GA vs new build</td></tr>
-      <tr><td>TC-10.3</td><td>7 days</td><td>Memory leak detection (RSS growth &lt; 1%/day)</td></tr>
+      <tr><th>Test</th><th>Duration</th><th>Description</th><th>Status</th></tr>
+      <tr><td>TC-01.7</td><td>72h</td><td>Post-upgrade soak &mdash; monitor all 9 devices every 5 min</td><td><span class="status-pill sp-warn">PENDING</span></td></tr>
+      <tr><td>TC-03.1</td><td>24h</td><td>SFP link stability under 50% line-rate</td><td><span class="status-pill sp-warn">PENDING</span></td></tr>
+      <tr><td>TC-06.1/06.2</td><td>24h</td><td>Camera stream soak (requires Protect infrastructure)</td><td><span class="status-pill sp-na">BLOCKED</span></td></tr>
+      <tr><td>TC-10.1</td><td>24h</td><td>Idle CPU/RAM baseline: 7.4.1 vs 7.5.2</td><td><span class="status-pill sp-warn">PENDING</span></td></tr>
+      <tr><td>TC-10.3</td><td>7 days</td><td>Memory leak detection (RSS growth &lt; 1%/day)</td><td><span class="status-pill sp-warn">PENDING</span></td></tr>
     </table>
   </div>
 </div>
 
+<!-- Not Executable -->
 <div class="detail-section collapsed">
   <div class="detail-header" onclick="this.parentElement.classList.toggle('collapsed')">
     <h3>Not Executable (Missing Hardware/Software)</h3>
@@ -846,11 +791,12 @@
   </div>
   <div class="detail-body">
     <table>
-      <tr><th>Suite</th><th>Reason</th><th>What's Needed</th></tr>
+      <tr><th>Item</th><th>Reason</th><th>What's Needed</th></tr>
+      <tr><td>GA_01 USW Lite 8 PoE</td><td>Still on FW 7.4.1</td><td>Upgrade to 7.5.2 via controller UI</td></tr>
+      <tr><td>#3 USW 24 PoE</td><td>Not in environment</td><td>Add US24 device</td></tr>
       <tr><td>TS-04 LACP</td><td>No LAG bonds configured</td><td>Configure LACP bonds between switches</td></tr>
       <tr><td>TS-06 Protect</td><td>No cameras / NVR</td><td>Install Protect, add cameras + NVR</td></tr>
-      <tr><td>TC-05.3 Etherlighting</td><td>No USW-Pro-HD-24</td><td>Add USW-Pro-HD-24</td></tr>
-      <tr><td>TC-03.6 3rd-party NAS</td><td>No QNAP / Synology</td><td>Add NAS with SFP+</td></tr>
+      <tr><td>TS-07 AP Adoption</td><td>No APs connected</td><td>Connect and adopt APs to PoE switches</td></tr>
     </table>
   </div>
 </div>
@@ -858,7 +804,7 @@
 </div>
 
 <div style="text-align:center;padding:32px;color:var(--text-dim);font-size:12px;border-top:1px solid var(--border)">
-  UniFi Switch QA &bull; Environment 10.58.150.37 &bull; Generated 2026-04-28
+  UniFi Switch QA &bull; FW 7.5.2+16967 &bull; Controller 10.58.150.37 &bull; Tested 2026-05-01
 </div>
 
 <script>
@@ -870,15 +816,13 @@ function switchTab(id) {
 }
 function openDetail(id) {
   var el = document.getElementById(id);
-  if (el) { el.classList.remove('collapsed'); }
+  if (el) { el.classList.remove('collapsed'); el.scrollIntoView({behavior:'smooth', block:'start'}); }
 }
 function openSuite(id) {
-  // Switch to View 2 tab first
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-bySuite').classList.add('active');
   document.querySelectorAll('.tab-btn')[1].classList.add('active');
-  // Scroll to suite after brief delay for tab switch
   setTimeout(function() {
     var el = document.getElementById(id);
     if (el) { el.scrollIntoView({behavior:'smooth', block:'start'}); el.style.outline='2px solid var(--accent)'; setTimeout(function(){el.style.outline='';},2000); }
