@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UniFi 7.5.0 Switch Firmware Test Report</title>
+<style>
+  :root {
+    --bg: #0f1923;
+    --card: #1a2733;
+    --card-alt: #1e2f3d;
+    --border: #2a3f50;
+    --text: #e0e6ed;
+    --text-dim: #8899aa;
+    --accent: #0077ff;
+    --accent-light: #339dff;
+    --pass: #00c853;
+    --fail: #ff1744;
+    --warn: #ffab00;
+    --info: #448aff;
+    --skip: #78909c;
+    --na: #546e7a;
+    --bug: #ff1744;
+    --missing: #37474f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .header {
+    background: linear-gradient(135deg, #0a1628 0%, #152840 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 0;
+  }
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  .header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .header-meta {
+    display: flex; gap: 24px; color: var(--text-dim); font-size: 14px; flex-wrap: wrap;
+  }
+  .header-meta span { display: flex; align-items: center; gap: 6px; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 32px; }
+
+  /* Summary Cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .summary-card .number { font-size: 32px; font-weight: 700; line-height: 1.2; }
+  .summary-card .label { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .c-pass { color: var(--pass); }
+  .c-fail { color: var(--fail); }
+  .c-warn { color: var(--warn); }
+  .c-info { color: var(--info); }
+  .c-skip { color: var(--skip); }
+
+  /* Tab Navigation */
+  .tab-nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+    border-bottom: 2px solid var(--border);
+  }
+  .tab-btn {
+    padding: 14px 28px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+  .tab-btn.active {
+    color: var(--accent-light);
+    border-bottom-color: var(--accent);
+    background: rgba(0,119,255,0.05);
+  }
+  .tab-content { display: none; padding-top: 24px; }
+  .tab-content.active { display: block; }
+
+  /* Matrix Table */
+  .matrix-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+  }
+  .matrix {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 900px;
+  }
+  .matrix th {
+    padding: 12px 10px;
+    background: var(--card-alt);
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    white-space: nowrap;
+  }
+  .matrix th.corner {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: var(--card-alt);
+  }
+  .matrix td {
+    padding: 10px;
+    border-bottom: 1px solid rgba(42,63,80,0.4);
+    text-align: center;
+    vertical-align: middle;
+  }
+  .matrix tr:last-child td { border-bottom: none; }
+  .matrix tr:hover td { background: rgba(0,119,255,0.04); }
+  .matrix .row-head {
+    position: sticky;
+    left: 0;
+    background: var(--card);
+    z-index: 1;
+    text-align: left;
+    padding-left: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 200px;
+    border-right: 1px solid var(--border);
+  }
+  .matrix tr:hover .row-head { background: rgba(0,119,255,0.04); }
+  .matrix .row-head .sub { font-weight: 400; font-size: 11px; color: var(--text-dim); display: block; }
+  .matrix th.rotate {
+    padding: 10px 8px;
+    min-width: 80px;
+    vertical-align: bottom;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 10px;
+  }
+
+  /* Status Cells */
+  .cell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: default;
+    position: relative;
+  }
+  .cell-pass { background: rgba(0,200,83,0.15); color: var(--pass); }
+  .cell-fail { background: rgba(255,23,68,0.2); color: var(--fail); }
+  .cell-bug { background: rgba(255,23,68,0.25); color: var(--fail); animation: pulse 2s infinite; }
+  .cell-warn { background: rgba(255,171,0,0.15); color: var(--warn); }
+  .cell-na { background: rgba(84,110,122,0.12); color: var(--na); }
+  .cell-skip { background: rgba(120,144,156,0.12); color: var(--skip); }
+  .cell-missing { background: rgba(55,71,79,0.3); color: var(--missing); }
+  .cell-inconclusive { background: rgba(255,171,0,0.12); color: var(--warn); }
+
+  /* Clickable cells */
+  a.cell { text-decoration: none; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+  a.cell:hover { transform: scale(1.2); box-shadow: 0 0 8px rgba(255,255,255,0.2); }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,23,68,0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(255,23,68,0.1); }
+  }
+
+  /* Tooltip */
+  .cell[data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0d1a26;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot {
+    width: 20px; height: 20px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+
+  /* Detail Section */
+  .detail-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-top: 24px;
+    overflow: hidden;
+  }
+  .detail-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .detail-header:hover { background: var(--card-alt); }
+  .detail-header h3 { font-size: 15px; font-weight: 600; }
+  .detail-body { padding: 16px 24px 24px; }
+  .detail-body table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  .detail-body th {
+    text-align: left; padding: 8px 12px; background: var(--card-alt);
+    color: var(--text-dim); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; border-bottom: 1px solid var(--border);
+  }
+  .detail-body td { padding: 8px 12px; border-bottom: 1px solid rgba(42,63,80,0.4); }
+  .detail-body tr:last-child td { border-bottom: none; }
+
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .sp-pass { background: rgba(0,200,83,0.12); color: var(--pass); }
+  .sp-fail { background: rgba(255,23,68,0.15); color: var(--fail); }
+  .sp-warn { background: rgba(255,171,0,0.12); color: var(--warn); }
+  .sp-na { background: rgba(84,110,122,0.12); color: var(--na); }
+  .sp-skip { background: rgba(120,144,156,0.12); color: var(--skip); }
+
+  .badge {
+    display: inline-flex; padding: 2px 8px; border-radius: 5px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .badge-gating { background: rgba(255,23,68,0.12); color: var(--fail); }
+  .badge-release { background: rgba(68,138,255,0.12); color: var(--info); }
+  .badge-regression { background: rgba(255,171,0,0.12); color: var(--warn); }
+
+  .finding {
+    background: var(--card-alt);
+    border-left: 3px solid var(--border);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px; margin-top: 8px; font-size: 13px;
+  }
+  .finding-p0 { border-left-color: var(--fail); }
+  .finding-p1 { border-left-color: var(--warn); }
+
+  .chevron { transition: transform 0.2s; font-size: 12px; color: var(--text-dim); }
+  .collapsed .detail-body { display: none; }
+  .collapsed .chevron { transform: rotate(-90deg); }
+
+  .model-tag {
+    display: inline-block; padding: 1px 6px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; margin-left: 6px;
+  }
+  .tag-top10 { background: rgba(0,119,255,0.15); color: var(--accent-light); }
+  .tag-missing { background: rgba(55,71,79,0.4); color: var(--na); }
+
+  .row-missing td { opacity: 0.5; }
+  .row-missing .row-head { opacity: 1; }
+
+  @media (max-width: 768px) {
+    .container { padding: 16px; }
+    .header-inner { padding: 0 16px; }
+    .tab-btn { padding: 10px 16px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>UniFi 7.5.0 Switch Firmware Test Report</h1>
+    <div class="header-meta">
+      <span>2026-04-28</span>
+      <span>Environment: 10.58.150.37</span>
+      <span>FW: US.7.5.0+16955</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- Summary Cards -->
+<div class="summary-grid">
+  <div class="summary-card">
+    <div class="number c-pass">32</div>
+    <div class="label">Tests Passed</div>
+  </div>
+  <div class="summary-card">
+    <div class="number c-fail">1</div>
+    <div class="label">Bug Found</div>
+  </div>
+  <div class="summary-card">
+    <div class="number c-warn">4</div>
+    <div class="label">Warnings</div>
+  </div>
+  <div class="summary-card">
+    <div class="number c-skip">5</div>
+    <div class="label">Deferred</div>
+  </div>
+  <div class="summary-card">
+    <div class="number c-info">8</div>
+    <div class="label">N/A (No HW)</div>
+  </div>
+  <div class="summary-card">
+    <div class="number" style="color:var(--text-dim)">4/10</div>
+    <div class="label">Top 10 Coverage</div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot cell-pass">P</div> Pass</div>
+  <div class="legend-item"><div class="legend-dot cell-bug">B</div> Bug</div>
+  <div class="legend-item"><div class="legend-dot cell-warn">W</div> Warning</div>
+  <div class="legend-item"><div class="legend-dot cell-inconclusive">?</div> Inconclusive</div>
+  <div class="legend-item"><div class="legend-dot cell-skip">D</div> Deferred</div>
+  <div class="legend-item"><div class="legend-dot cell-na">&ndash;</div> N/A</div>
+  <div class="legend-item"><div class="legend-dot cell-missing">&times;</div> Missing HW</div>
+</div>
+
+<!-- Tab Nav -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('byModel')">View 1: By Top 10 Model</button>
+  <button class="tab-btn" onclick="switchTab('bySuite')">View 2: By Test Suite</button>
+</div>
+
+<!-- ========== VIEW 1: BY MODEL ========== -->
+<div id="tab-byModel" class="tab-content active">
+
+<div class="matrix-wrap">
+<table class="matrix">
+  <thead>
+    <tr>
+      <th class="corner">Top 10 Model</th>
+      <th class="rotate">TS-01 Boot &amp; Recovery</th>
+      <th class="rotate">TS-02 Config Survival</th>
+      <th class="rotate">TS-03 SFP / DAC</th>
+      <th class="rotate">TS-04 LACP</th>
+      <th class="rotate">TS-05 LCM</th>
+      <th class="rotate">TS-06 Protect</th>
+      <th class="rotate">TS-07 AP Adoption</th>
+      <th class="rotate">TS-08 STP Topology</th>
+      <th class="rotate">TS-09 PoE</th>
+      <th class="rotate">TS-10 CPU / Memory</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- #1 USW Lite 8 PoE - MISSING -->
+    <tr class="row-missing">
+      <td class="row-head">#1 USW Lite 8 PoE <span class="model-tag tag-missing">MISSING</span></td>
+      <td><span class="cell cell-missing" data-tip="No device in environment">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+    </tr>
+    <!-- #2 USW Pro 48 PoE -->
+    <tr>
+      <td class="row-head">#2 USW Pro 48 PoE <span class="model-tag tag-top10">US48PRO</span><span class="sub">10.10.11.150 &bull; BCM5616x</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Boot OK, FW verified, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config integrity verified" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="2 SFP modules, DAC+MM-10G OK" onclick="openSuite('suite-ts03')">P</a></td>
+      <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
+      <td><a href="#suite-ts05" class="cell cell-pass" data-tip="LCM v5.4.4 OK, lcmd running" onclick="openSuite('suite-ts05')">P</a></td>
+      <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
+      <td><a href="#suite-ts07" class="cell cell-inconclusive" data-tip="APs disconnected, no LLDP evidence" onclick="openSuite('suite-ts07')">?</a></td>
+      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct, port 11 discarding (redundant)" onclick="openSuite('suite-ts08')">P</a></td>
+      <td><a href="#detail-poe-bug" class="cell cell-bug" data-tip="Total Power Limit: -1,096,815,636 mW" onclick="openDetail('detail-poe-bug')">B</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-warn" data-tip="CPU load 3.20, RAM 36% (488MB)" onclick="openDetail('detail-ts10-baseline')">W</a></td>
+    </tr>
+    <!-- #3 USW 24 PoE - MISSING -->
+    <tr class="row-missing">
+      <td class="row-head">#3 USW 24 PoE <span class="model-tag tag-missing">MISSING</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+    </tr>
+    <!-- #4 USW Pro 24 PoE -->
+    <tr>
+      <td class="row-head">#4 USW Pro 24 PoE <span class="model-tag tag-top10">US24PRO</span><span class="sub">10.10.9.4 &bull; BCM5616x</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Boot OK, FW verified, ARP flood PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config integrity verified" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="1 SFP (OM-MM-10G-D), link UP 10G" onclick="openSuite('suite-ts03')">P</a></td>
+      <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No LCM on this model">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
+      <td><a href="#suite-ts07" class="cell cell-inconclusive" data-tip="APs disconnected" onclick="openSuite('suite-ts07')">?</a></td>
+      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP ROOT bridge (lowest MAC)" onclick="openSuite('suite-ts08')">P</a></td>
+      <td><a href="#detail-poe-bug" class="cell cell-bug" data-tip="Total Power Limit: -1,097,745,428 mW" onclick="openDetail('detail-poe-bug')">B</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-warn" data-tip="CPU load 3.72, RAM 34% (488MB)" onclick="openDetail('detail-ts10-baseline')">W</a></td>
+    </tr>
+    <!-- #5 USW Pro Max 48 PoE - MISSING -->
+    <tr class="row-missing">
+      <td class="row-head">#5 USW Pro Max 48 PoE <span class="model-tag tag-missing">MISSING</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+    </tr>
+    <!-- #6 USW Pro Aggregation -->
+    <tr>
+      <td class="row-head">#6 USW Pro Aggregation <span class="model-tag tag-top10">USAGGPRO &times;2</span><span class="sub">10.10.10.107, 10.10.8.168 &bull; BCM5617x</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Boot OK, dual-device DAC upgrade PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><span class="cell cell-na" data-tip="Not specifically tested">&ndash;</span></td>
+      <td><a href="#suite-ts03" class="cell cell-warn" data-tip="5/5 UACC-CM-RJ45-MG link DOWN" onclick="openSuite('suite-ts03')">W</a></td>
+      <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
+      <td><a href="#suite-ts05" class="cell cell-warn" data-tip="Agg-1 OK (v5.4.4), Agg-2 stale v5.4.1 auto-DFU" onclick="openSuite('suite-ts05')">W</a></td>
+      <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="Not PoE, no downstream APs">&ndash;</span></td>
+      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct, port 27 discarding (redundant)" onclick="openSuite('suite-ts08')">P</a></td>
+      <td><span class="cell cell-na" data-tip="Not a PoE switch">&ndash;</span></td>
+      <td><a href="#suite-ts10" class="cell cell-pass" data-tip="CPU load 0.3, RAM 10% (2GB)" onclick="openSuite('suite-ts10')">P</a></td>
+    </tr>
+    <!-- #7 USW Flex -->
+    <tr>
+      <td class="row-head">#7 USW Flex <span class="model-tag tag-top10">USF5P &times;6</span><span class="sub">various IPs &bull; RTK/MTK</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Boot OK, FW verified on 7.5.0 units" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Full upgrade test: config identical pre/post" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><span class="cell cell-na" data-tip="No SFP ports on USW-Flex">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No LACP configured">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No LCM on USW-Flex">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="No Protect/cameras">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="Unreachable from jump host">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="Unreachable from jump host">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="Unreachable from jump host">&ndash;</span></td>
+      <td><span class="cell cell-na" data-tip="Unreachable from jump host">&ndash;</span></td>
+    </tr>
+    <!-- #8 USW Pro Max 24 PoE -->
+    <tr class="row-missing">
+      <td class="row-head">#8 USW Pro Max 24 PoE <span class="model-tag tag-missing">NOT ADOPTED</span><span class="sub">10.10.11.225 &bull; LLDP-visible only</span></td>
+      <td><span class="cell cell-missing" data-tip="Device not adopted to this controller">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+    </tr>
+    <!-- #9 USW Lite 16 PoE - MISSING -->
+    <tr class="row-missing">
+      <td class="row-head">#9 USW Lite 16 PoE <span class="model-tag tag-missing">MISSING</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+    </tr>
+    <!-- #10 US 24 PoE 250W - MISSING -->
+    <tr class="row-missing">
+      <td class="row-head">#10 US 24 PoE 250W <span class="model-tag tag-missing">MISSING</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+      <td><span class="cell cell-missing">&times;</span></td>
+    </tr>
+  </tbody>
+  <!-- Separator -->
+  <tbody>
+    <tr><td colspan="11" style="background:var(--card-alt);padding:8px 16px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);text-align:left;font-weight:600;border-bottom:1px solid var(--border)">Other Models in Environment</td></tr>
+  </tbody>
+  <tbody>
+    <!-- USW-Ent-24-PoE -->
+    <tr>
+      <td class="row-head">USW-Ent-24-PoE <span class="sub">US624P &times;2 &bull; 10.10.9.190, 10.10.9.119 &bull; BCM5616x</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Boot OK, PoE recovery PASS (30s)" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config integrity verified" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="SFP modules detected, links UP" onclick="openSuite('suite-ts03')">P</a></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><a href="#suite-ts07" class="cell cell-inconclusive" data-tip="APs disconnected" onclick="openSuite('suite-ts07')">?</a></td>
+      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct" onclick="openSuite('suite-ts08')">P</a></td>
+      <td><a href="#detail-poe-bug" class="cell cell-bug" data-tip="Negative power limit on both units" onclick="openDetail('detail-poe-bug')">B</a></td>
+      <td><a href="#detail-ts10-baseline" class="cell cell-warn" data-tip="CPU load ~2.9, RAM 34%" onclick="openDetail('detail-ts10-baseline')">W</a></td>
+    </tr>
+    <!-- ECS-48-PoE -->
+    <tr>
+      <td class="row-head">ECS-48-PoE <span class="sub">USWF069 &bull; 10.10.9.255 &bull; MRVL AC5</span></td>
+      <td><a href="#suite-ts01" class="cell cell-warn" data-tip="Boot 147s > 120s requirement" onclick="openSuite('suite-ts01')">W</a></td>
+      <td><a href="#suite-ts02" class="cell cell-pass" data-tip="Config integrity verified" onclick="openSuite('suite-ts02')">P</a></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="DAC-SFP28-3M, link UP 10G" onclick="openSuite('suite-ts03')">P</a></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct, port 2 discarding (redundant)" onclick="openSuite('suite-ts08')">P</a></td>
+      <td><a href="#suite-ts09" class="cell cell-pass" data-tip="PoE budget 750W correct" onclick="openSuite('suite-ts09')">P</a></td>
+      <td><a href="#suite-ts10" class="cell cell-pass" data-tip="CPU 2.5, RAM 5% (8GB)" onclick="openSuite('suite-ts10')">P</a></td>
+    </tr>
+    <!-- ECS-48S -->
+    <tr>
+      <td class="row-head">ECS-48S <span class="sub">USWF007 &bull; 10.10.11.36 &bull; MRVL AC5</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Dual-device DAC upgrade PASS" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><span class="cell cell-na" data-tip="Not specifically tested">&ndash;</span></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="3 DAC modules, all links UP" onclick="openSuite('suite-ts03')">P</a></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct" onclick="openSuite('suite-ts08')">P</a></td>
+      <td><span class="cell cell-na" data-tip="Not a PoE switch">&ndash;</span></td>
+      <td><a href="#suite-ts10" class="cell cell-pass" data-tip="CPU 1.8, RAM 5% (8GB)" onclick="openSuite('suite-ts10')">P</a></td>
+    </tr>
+    <!-- USXG24 -->
+    <tr>
+      <td class="row-head">USW-EnterpriseXG-24 <span class="sub">USXG24 &bull; 10.10.8.245 &bull; BCM5617x &bull; FW 7.4.1</span></td>
+      <td><a href="#suite-ts01" class="cell cell-pass" data-tip="Stable 13 days on 7.4.1, clean dmesg" onclick="openSuite('suite-ts01')">P</a></td>
+      <td><span class="cell cell-na" data-tip="Not specifically tested">&ndash;</span></td>
+      <td><a href="#suite-ts03" class="cell cell-pass" data-tip="AOC 30M link UP 10G to Agg-1" onclick="openSuite('suite-ts03')">P</a></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><span class="cell cell-na">&ndash;</span></td>
+      <td><a href="#suite-ts08" class="cell cell-pass" data-tip="STP correct" onclick="openSuite('suite-ts08')">P</a></td>
+      <td><span class="cell cell-na" data-tip="Not a PoE switch">&ndash;</span></td>
+      <td><a href="#suite-ts10" class="cell cell-pass" data-tip="CPU 0.36, RAM 10% (7.4.1 baseline)" onclick="openSuite('suite-ts10')">P</a></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+</div>
+
+<!-- ========== VIEW 2: BY SUITE ========== -->
+<div id="tab-bySuite" class="tab-content">
+
+<!-- TS-01 -->
+<div id="suite-ts01" class="suite-block">
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-01 Post-Upgrade Boot &amp; Auto-Recovery <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">6/7 TC pass</span></div>
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head">USW Pro 48 PoE <span class="sub">US48PRO &bull; BCM5616x</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Boot OK, FW verified, ARP flood PASS</td></tr>
+      <tr><td class="row-head">USW Pro 24 PoE <span class="sub">US24PRO &bull; BCM5616x</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Boot OK, FW verified, ARP flood PASS</td></tr>
+      <tr><td class="row-head">USW Pro Aggregation <span class="sub">USAGGPRO &times;2 &bull; BCM5617x</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Dual-device DAC upgrade PASS</td></tr>
+      <tr><td class="row-head">USW Flex <span class="sub">USF5P &times;6 &bull; RTK/MTK</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Boot OK, FW verified on 7.5.0 units</td></tr>
+      <tr><td class="row-head">USW-Ent-24-PoE <span class="sub">US624P &times;2 &bull; BCM5616x</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Boot OK, PoE recovery 30s, ARP flood PASS</td></tr>
+      <tr><td class="row-head">ECS-48-PoE <span class="sub">USWF069 &bull; MRVL AC5</span></td><td><a href="#suite-ts01" class="cell cell-warn">W</a></td><td style="color:var(--warn)">Boot time 147s exceeds 120s requirement</td></tr>
+      <tr><td class="row-head">ECS-48S <span class="sub">USWF007 &bull; MRVL AC5</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Dual-device DAC upgrade PASS</td></tr>
+      <tr><td class="row-head">USXG24 <span class="sub">BCM5617x &bull; FW 7.4.1</span></td><td><a href="#suite-ts01" class="cell cell-pass">P</a></td><td>Stable 13 days on 7.4.1, ARP flood PASS</td></tr>
+      <tr class="row-missing"><td class="row-head" style="color:var(--na)">USW Lite 8 PoE, USW 24 PoE, Pro Max 48 PoE, Pro Max 24 PoE, Lite 16 PoE, US 24P 250W</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Missing &mdash; not in environment</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- TS-02 -->
+<div id="suite-ts02" class="suite-block">
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-02 Configuration Survivability <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">7/7 TC pass</span></div>
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head">USW Pro 48 PoE</td><td><a href="#suite-ts02" class="cell cell-pass">P</a></td><td>Config integrity verified</td></tr>
+      <tr><td class="row-head">USW Pro 24 PoE</td><td><a href="#suite-ts02" class="cell cell-pass">P</a></td><td>Config integrity verified</td></tr>
+      <tr><td class="row-head">USW Flex</td><td><a href="#suite-ts02" class="cell cell-pass">P</a></td><td>Full upgrade cycle (7.4.1&rarr;7.5.0), config byte-identical</td></tr>
+      <tr><td class="row-head">USW-Ent-24-PoE</td><td><a href="#suite-ts02" class="cell cell-pass">P</a></td><td>Config integrity verified</td></tr>
+      <tr><td class="row-head">ECS-48-PoE</td><td><a href="#suite-ts02" class="cell cell-pass">P</a></td><td>Config integrity verified</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">USW Pro Aggregation, ECS-48S, USXG24</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Not specifically tested for config survival</td></tr>
+      <tr class="row-missing"><td class="row-head" style="color:var(--na)">6 missing Top 10 models</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Missing &mdash; not in environment</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- TS-03 -->
+<div id="suite-ts03" class="suite-block">
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-03 SFP / DAC / Multigig Stability <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">5/7 TC pass</span></div>
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head">USW Pro 48 PoE</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>2 SFP modules (DAC + MM-10G), links UP at 10G</td></tr>
+      <tr><td class="row-head">USW Pro 24 PoE</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>1 SFP (OM-MM-10G-D), link UP 10G</td></tr>
+      <tr><td class="row-head">USW Pro Aggregation</td><td><a href="#suite-ts03" class="cell cell-warn">W</a></td><td style="color:var(--warn)">5/5 UACC-CM-RJ45-MG multigig adapters link DOWN &mdash; investigate</td></tr>
+      <tr><td class="row-head">USW-Ent-24-PoE</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>SFP modules detected, links UP</td></tr>
+      <tr><td class="row-head">ECS-48-PoE</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>DAC-SFP28-3M, link UP 10G</td></tr>
+      <tr><td class="row-head">ECS-48S</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>3 DAC modules, all links UP (10G/1G/25G)</td></tr>
+      <tr><td class="row-head">USXG24</td><td><a href="#suite-ts03" class="cell cell-pass">P</a></td><td>AOC 30M cross-version (7.4.1&harr;7.5.0) stable</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">USW Flex</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">No SFP ports on this model</td></tr>
+      <tr class="row-missing"><td class="row-head" style="color:var(--na)">6 missing Top 10 models</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Missing &mdash; not in environment</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- TS-04 -->
+<div id="suite-ts04" class="suite-block">
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-04 LACP / Link Aggregation <span style="color:var(--na);font-weight:400;font-size:13px;margin-left:8px">N/A &mdash; No LAG configured</span></div>
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head" style="color:var(--text-dim)">All models</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">No LACP/LAG bonds configured. bond0 loaded but 0 slaves on Agg-1, Agg-2, USXG24.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- TS-05 -->
+<div id="suite-ts05" class="suite-block">
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-05 LCM Touchscreen <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">2/3 TC pass</span></div>
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head">USW Pro 48 PoE</td><td><a href="#suite-ts05" class="cell cell-pass">P</a></td><td>LCM v5.4.4, lcmd running</td></tr>
+      <tr><td class="row-head">USW Pro Aggregation (Agg-1)</td><td><a href="#suite-ts05" class="cell cell-pass">P</a></td><td>LCM v5.4.4, lcmd running</td></tr>
+      <tr><td class="row-head">USW Pro Aggregation (Agg-2)</td><td><a href="#suite-ts05" class="cell cell-warn">W</a></td><td style="color:var(--warn)">Stale LCM FW v5.4.1 detected; auto-DFU to v5.4.4 completed</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">All other models</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">No LCM on these models</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- TS-06 -->
+<div id="suite-ts06" class="suite-block">
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-06 Protect / Camera Streams <span style="color:var(--na);font-weight:400;font-size:13px;margin-left:8px">N/A &mdash; No cameras/NVR</span></div>
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head" style="color:var(--text-dim)">All models</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Protect not installed. No UVC devices or NVR in environment.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- TS-07 -->
+<div id="suite-ts07" class="suite-block">
+  <div class="suite-title"><span class="badge badge-gating">GATING</span> TS-07 AP Adoption &amp; Downstream Lifecycle <span style="color:var(--warn);font-weight:400;font-size:13px;margin-left:8px">Inconclusive</span></div>
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head">USW Pro 48 PoE</td><td><a href="#suite-ts07" class="cell cell-inconclusive">?</a></td><td>No APs visible in LLDP; all 15 APs disconnected</td></tr>
+      <tr><td class="row-head">USW Pro 24 PoE</td><td><a href="#suite-ts07" class="cell cell-inconclusive">?</a></td><td>No APs visible in LLDP</td></tr>
+      <tr><td class="row-head">USW-Ent-24-PoE</td><td><a href="#suite-ts07" class="cell cell-inconclusive">?</a></td><td>No APs visible in LLDP</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">All other models</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Not PoE or unreachable</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- TS-08 -->
+<div id="suite-ts08" class="suite-block">
+  <div class="suite-title"><span class="badge badge-release">RELEASE</span> TS-08 STP / Topology Integrity <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">3/4 TC pass</span></div>
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head">USW Pro 48 PoE</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct; port 11 discarding (redundant path)</td></tr>
+      <tr><td class="row-head">USW Pro 24 PoE</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP ROOT bridge (elected by lowest MAC)</td></tr>
+      <tr><td class="row-head">USW Pro Aggregation</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct; Agg-1 port 27 discarding (redundant)</td></tr>
+      <tr><td class="row-head">USW-Ent-24-PoE</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct</td></tr>
+      <tr><td class="row-head">ECS-48-PoE</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct; port 2 discarding (dual-link to ECS-48S)</td></tr>
+      <tr><td class="row-head">ECS-48S</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct</td></tr>
+      <tr><td class="row-head">USXG24</td><td><a href="#suite-ts08" class="cell cell-pass">P</a></td><td>STP correct</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">USW Flex</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Unreachable from jump host</td></tr>
+      <tr class="row-missing"><td class="row-head" style="color:var(--na)">6 missing Top 10 models</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Missing</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- TS-09 -->
+<div id="suite-ts09" class="suite-block">
+  <div class="suite-title"><span class="badge badge-release">RELEASE</span> TS-09 PoE Delivery &amp; Reporting <span style="color:var(--fail);font-weight:600;font-size:13px;margin-left:8px">BUG FOUND</span></div>
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">Details</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head">USW Pro 48 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,096,815,636 mW &bull; Per-port PwrLimit: -1</td></tr>
+      <tr><td class="row-head">USW Pro 24 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,097,745,428 mW &bull; Per-port PwrLimit: -1</td></tr>
+      <tr><td class="row-head">USW-Ent-24-PoE-1 <span class="sub">BCM5616x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,095,681,044 mW &bull; Per-port PwrLimit: -1</td></tr>
+      <tr><td class="row-head">USW-Ent-24-PoE-2 <span class="sub">BCM5616x</span></td><td><a href="#detail-poe-bug" class="cell cell-bug" onclick="openDetail('detail-poe-bug')">B</a></td><td style="color:var(--fail)">Total Power Limit: -1,098,437,652 mW &bull; Per-port PwrLimit: -1</td></tr>
+      <tr><td class="row-head">ECS-48-PoE <span class="sub">MRVL AC5</span></td><td><a href="#suite-ts09" class="cell cell-pass">P</a></td><td style="color:var(--pass)">Budget 750,000 mW correct &bull; Per-port 96,000 mW</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">USW Pro Aggregation, ECS-48S, USXG24</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Not PoE switches</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">USW Flex</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)">Unreachable from jump host</td></tr>
+      <tr class="row-missing"><td class="row-head" style="color:var(--na)">6 missing Top 10 models</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)">Missing</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- TS-10 -->
+<div id="suite-ts10" class="suite-block">
+  <div class="suite-title"><span class="badge badge-regression">REGRESSION</span> TS-10 CPU, Memory &amp; Stability <span style="color:var(--text-dim);font-weight:400;font-size:13px;margin-left:8px">Snapshot OK</span></div>
+  <div class="matrix-wrap">
+  <table class="matrix">
+    <thead><tr><th style="min-width:200px;text-align:left;padding-left:16px">Model</th><th>Result</th><th style="text-align:left">CPU Load (1/5/15m)</th><th style="text-align:left">RAM</th></tr></thead>
+    <tbody>
+      <tr><td class="row-head">USW Pro 48 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-ts10-baseline" class="cell cell-warn" onclick="openDetail('detail-ts10-baseline')">W</a></td><td style="color:var(--warn)">3.20 / 3.31 / 3.19</td><td>176 / 488 MB (36%)</td></tr>
+      <tr><td class="row-head">USW Pro 24 PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-ts10-baseline" class="cell cell-warn" onclick="openDetail('detail-ts10-baseline')">W</a></td><td style="color:var(--warn)">3.72 / 3.26 / 3.07</td><td>166 / 488 MB (34%)</td></tr>
+      <tr><td class="row-head">USW Pro Aggregation <span class="sub">BCM5617x</span></td><td><a href="#suite-ts10" class="cell cell-pass">P</a></td><td style="color:var(--pass)">0.33 / 0.22 / 0.20</td><td>207 / 2012 MB (10%)</td></tr>
+      <tr><td class="row-head">USW-Ent-24-PoE <span class="sub">BCM5616x</span></td><td><a href="#detail-ts10-baseline" class="cell cell-warn" onclick="openDetail('detail-ts10-baseline')">W</a></td><td style="color:var(--warn)">2.86 / 2.86 / 2.85</td><td>166 / 488 MB (34%)</td></tr>
+      <tr><td class="row-head">ECS-48-PoE <span class="sub">MRVL AC5</span></td><td><a href="#suite-ts10" class="cell cell-pass">P</a></td><td style="color:var(--pass)">2.54 / 2.13 / 1.95</td><td>359 / 7938 MB (5%)</td></tr>
+      <tr><td class="row-head">ECS-48S <span class="sub">MRVL AC5</span></td><td><a href="#suite-ts10" class="cell cell-pass">P</a></td><td style="color:var(--pass)">1.76 / 1.15 / 1.14</td><td>392 / 7938 MB (5%)</td></tr>
+      <tr style="background:rgba(0,119,255,0.04)"><td class="row-head">USXG24 <span class="sub">BCM5617x &bull; 7.4.1 baseline</span></td><td><a href="#suite-ts10" class="cell cell-pass">P</a></td><td style="color:var(--pass)">0.36 / 0.25 / 0.20</td><td>208 / 2012 MB (10%)</td></tr>
+      <tr><td class="row-head" style="color:var(--text-dim)">USW Flex</td><td><span class="cell cell-na">&ndash;</span></td><td style="color:var(--text-dim)" colspan="2">Unreachable from jump host</td></tr>
+      <tr class="row-missing"><td class="row-head" style="color:var(--na)">6 missing Top 10 models</td><td><span class="cell cell-missing">&times;</span></td><td style="color:var(--na)" colspan="2">Missing</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+</div>
+
+<!-- Detail Sections -->
+<div id="detail-poe-bug" class="detail-section collapsed" style="margin-top:32px">
+  <div class="detail-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <h3 style="color:var(--fail)">P0 Bug Detail: PoE Total Power Limit Negative Value</h3>
+    <span class="chevron">&#9660;</span>
+  </div>
+  <div class="detail-body">
+    <p style="font-size:13px;margin-bottom:12px">Signed/unsigned 32-bit integer overflow in BCM PoE driver. All BCM-based PoE switches affected. MRVL platform unaffected.</p>
+    <table>
+      <tr><th>Device</th><th>Total Power Limit (mW)</th><th>Per-port PwrLimit</th><th>Platform</th><th>Status</th></tr>
+      <tr><td>USW-Pro-24-PoE</td><td style="color:var(--fail)">-1,097,745,428</td><td>-1</td><td>BCM5616x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
+      <tr><td>USW-Pro-48-PoE</td><td style="color:var(--fail)">-1,096,815,636</td><td>-1</td><td>BCM5616x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
+      <tr><td>USW-Ent-24-PoE-1</td><td style="color:var(--fail)">-1,095,681,044</td><td>-1</td><td>BCM5616x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
+      <tr><td>USW-Ent-24-PoE-2</td><td style="color:var(--fail)">-1,098,437,652</td><td>-1</td><td>BCM5616x</td><td><span class="status-pill sp-fail">BUG</span></td></tr>
+      <tr><td>ECS-48-PoE</td><td style="color:var(--pass)">750,000</td><td>96,000</td><td>MRVL AC5</td><td><span class="status-pill sp-pass">OK</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<div id="detail-ts10-baseline" class="detail-section collapsed">
+  <div class="detail-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <h3>TS-10 Resource Baseline</h3>
+    <span class="chevron">&#9660;</span>
+  </div>
+  <div class="detail-body">
+    <table>
+      <tr><th>Device</th><th>Platform</th><th>FW</th><th>CPU Load (1/5/15m)</th><th>RAM Used / Total</th><th>RAM %</th></tr>
+      <tr><td>USW-Pro-24-PoE</td><td>BCM5616x</td><td>7.5.0</td><td style="color:var(--warn)">3.72 / 3.26 / 3.07</td><td>166 / 488 MB</td><td>34%</td></tr>
+      <tr><td>USW-Pro-48-PoE</td><td>BCM5616x</td><td>7.5.0</td><td style="color:var(--warn)">3.20 / 3.31 / 3.19</td><td>176 / 488 MB</td><td>36%</td></tr>
+      <tr><td>USW-Pro-Agg-1</td><td>BCM5617x</td><td>7.5.0</td><td style="color:var(--pass)">0.35 / 0.20 / 0.18</td><td>207 / 2012 MB</td><td>10%</td></tr>
+      <tr><td>USW-Pro-Agg-2</td><td>BCM5617x</td><td>7.5.0</td><td style="color:var(--pass)">0.31 / 0.25 / 0.21</td><td>206 / 2012 MB</td><td>10%</td></tr>
+      <tr><td>USW-Ent-24-PoE-1</td><td>BCM5616x</td><td>7.5.0</td><td style="color:var(--warn)">2.78 / 2.85 / 2.84</td><td>165 / 488 MB</td><td>34%</td></tr>
+      <tr><td>USW-Ent-24-PoE-2</td><td>BCM5616x</td><td>7.5.0</td><td style="color:var(--warn)">2.93 / 2.86 / 2.86</td><td>166 / 488 MB</td><td>34%</td></tr>
+      <tr><td>ECS-48-PoE</td><td>MRVL AC5</td><td>7.5.0</td><td style="color:var(--pass)">2.54 / 2.13 / 1.95</td><td>359 / 7938 MB</td><td>5%</td></tr>
+      <tr><td>ECS-48S</td><td>MRVL AC5</td><td>7.5.0</td><td style="color:var(--pass)">1.76 / 1.15 / 1.14</td><td>392 / 7938 MB</td><td>5%</td></tr>
+      <tr style="background:rgba(0,119,255,0.05)"><td>USXG24 <span style="color:var(--info);font-size:11px">(7.4.1 baseline)</span></td><td>BCM5617x</td><td><strong>7.4.1</strong></td><td style="color:var(--pass)">0.36 / 0.25 / 0.20</td><td>208 / 2012 MB</td><td>10%</td></tr>
+    </table>
+    <div class="finding finding-p1" style="margin-top:12px">BCM5616x (488MB): CPU load 2.8&ndash;3.7, sirq 50%. Single-core ARM near saturation. Top process: switchdrvr</div>
+    <div class="finding" style="border-left-color:var(--pass)">BCM5617x: 7.4.1 vs 7.5.0 memory identical (~207MB). No regression.</div>
+  </div>
+</div>
+
+<div class="detail-section collapsed">
+  <div class="detail-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <h3>Deferred Long-Running Tests</h3>
+    <span class="chevron">&#9660;</span>
+  </div>
+  <div class="detail-body">
+    <table>
+      <tr><th>Test</th><th>Duration</th><th>Description</th></tr>
+      <tr><td>TC-01.7</td><td>72h</td><td>Post-upgrade soak &mdash; monitor all devices every 5 min</td></tr>
+      <tr><td>TC-03.1</td><td>24h</td><td>SFP link stability under 50% line-rate</td></tr>
+      <tr><td>TC-06.1/06.2</td><td>24h</td><td>Camera stream soak (requires Protect infrastructure)</td></tr>
+      <tr><td>TC-10.1</td><td>24h</td><td>Idle CPU/RAM baseline: prior GA vs new build</td></tr>
+      <tr><td>TC-10.3</td><td>7 days</td><td>Memory leak detection (RSS growth &lt; 1%/day)</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="detail-section collapsed">
+  <div class="detail-header" onclick="this.parentElement.classList.toggle('collapsed')">
+    <h3>Not Executable (Missing Hardware/Software)</h3>
+    <span class="chevron">&#9660;</span>
+  </div>
+  <div class="detail-body">
+    <table>
+      <tr><th>Suite</th><th>Reason</th><th>What's Needed</th></tr>
+      <tr><td>TS-04 LACP</td><td>No LAG bonds configured</td><td>Configure LACP bonds between switches</td></tr>
+      <tr><td>TS-06 Protect</td><td>No cameras / NVR</td><td>Install Protect, add cameras + NVR</td></tr>
+      <tr><td>TC-05.3 Etherlighting</td><td>No USW-Pro-HD-24</td><td>Add USW-Pro-HD-24</td></tr>
+      <tr><td>TC-03.6 3rd-party NAS</td><td>No QNAP / Synology</td><td>Add NAS with SFP+</td></tr>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<div style="text-align:center;padding:32px;color:var(--text-dim);font-size:12px;border-top:1px solid var(--border)">
+  UniFi Switch QA &bull; Environment 10.58.150.37 &bull; Generated 2026-04-28
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+function openDetail(id) {
+  var el = document.getElementById(id);
+  if (el) { el.classList.remove('collapsed'); }
+}
+function openSuite(id) {
+  // Switch to View 2 tab first
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-bySuite').classList.add('active');
+  document.querySelectorAll('.tab-btn')[1].classList.add('active');
+  // Scroll to suite after brief delay for tab switch
+  setTimeout(function() {
+    var el = document.getElementById(id);
+    if (el) { el.scrollIntoView({behavior:'smooth', block:'start'}); el.style.outline='2px solid var(--accent)'; setTimeout(function(){el.style.outline='';},2000); }
+  }, 100);
+}
+</script>
+
+</body>
+</html>
