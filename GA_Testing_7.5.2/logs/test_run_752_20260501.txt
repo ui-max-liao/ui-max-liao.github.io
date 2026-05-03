@@ -1,0 +1,82 @@
+================================================================
+ UniFi 7.5.2 Switch Firmware - Full Test Run
+ GA_02 ~ GA_10 (9 devices)
+ Run: 2026-05-01 01:31~01:39 CST
+================================================================
+
+DEVICES:
+  GA_02_Pro48PoE      10.10.11.150  US48PRO   bcm5616x  7.5.2
+  GA_03_24PoE         10.10.8.41    USL24P    rtl838x   7.5.2
+  GA_04_Pro24PoE      10.10.9.4     US24PRO   bcm5616x  7.5.2
+  GA_05_ProMax48PoE   10.10.9.220   USPM48P   rtl93xx   7.5.2
+  GA_06_ProAgg        10.10.10.107  USAGGPRO  bcm5617x  7.5.2
+  GA_07_Flex           10.10.8.137   USF5P     mt7621    7.5.2
+  GA_08_ProMax24PoE   10.10.11.225  USPM24P   rtl93xx   7.5.2
+  GA_09_Lite16PoE     10.10.8.202   USL16LP   rtl838x   7.5.2
+  GA_10_24PoE250W     10.10.10.238  US24P250  bcm5334x  7.5.2
+
+SUMMARY:
+  PASS: 122  WARN: 48  FAIL: 0  BUG: 3  N/A: 34  Total: 207
+
+======= TS-01: Boot & Recovery =======
+  ALL 9 PASS: FW verified 7.5.2, stable uptime (100-365 min), ARP flood OK
+  WARN (benign): TC-01.3 on RTL/MT platforms — only mcad+inform-collector visible
+    (switchdrvr is not the process name on these platforms)
+  WARN (benign): TC-01.4 pstore/ramoops init messages — boot-time kernel init, not errors
+
+======= TS-02: Config Survivability =======
+  ALL 9 PASS: system.cfg has valid content (99-701 lines)
+  WARN (expected): br0 does not exist on 7.5.2 — management IP is on eth0 directly
+  ALL have inform URL: http://10.10.8.1:8080/inform
+
+======= TS-03: SFP/DAC =======
+  GA_02: 2 SFP (UC-DAC-SFP+ + OM-MM-10G-D) — links UP at 10G
+  GA_04: 1 SFP (OM-MM-10G-D) — link UP at 10G
+  GA_06: 5 SFP (2x UACC-CM-RJ45-MG + UF-MM-1G + DAC-SFP28-3M + Uplink-Cable-30M)
+  GA_03/05/08/10: SFP ports present but no modules inserted
+  GA_07/09: No SFP ports (N/A)
+
+======= TS-04: LACP =======
+  N/A — No LACP bonds configured on any device. bond0 exists on GA_06 with 0 slaves.
+
+======= TS-05: LCM =======
+  PASS: lcmd running on GA_02, GA_05, GA_06, GA_08 (all LCM-equipped models)
+  WARN: Cannot determine LCM FW version via SSH (version file paths changed in 7.5.2)
+  N/A: GA_03, GA_04, GA_07, GA_09, GA_10 — no LCM hardware
+
+======= TS-06: Protect =======
+  N/A — No cameras/NVR in environment
+
+======= TS-07: AP Adoption =======
+  WARN: No APs visible via LLDP on any PoE switch. LLDP neighbors are present (1-3 per device)
+  but none are AP models. Environment has no APs connected.
+
+======= TS-08: STP Topology =======
+  NOTE: `swctrl stp` subcommand REMOVED in 7.5.2 firmware (not in swctrl function list).
+  STP is configured via system.cfg: RSTP enabled, priority 32768 on all devices.
+  Port STP state visible in `swctrl port show` output column.
+  Cannot verify operational STP role (root/designated) via CLI on 7.5.2.
+
+======= TS-09: PoE =======
+  BUG (P0): Negative Total Power Limit on BCM platforms:
+    GA_02 (US48PRO, BCM5616x): -1,092,326,420 mW, per-port PwrLimit: -1
+    GA_04 (US24PRO, BCM5616x): -1,097,536,532 mW, per-port PwrLimit: -1
+    GA_10 (US24P250, BCM5334x): -1,095,771,156 mW, per-port PwrLimit: -1
+  PASS: RTL and MT platforms have correct budgets:
+    GA_03 (USL24P, RTL838x): 95,000 mW
+    GA_05 (USPM48P, RTL93xx): 720,000 mW
+    GA_07 (USF5P, MT7621): 46,000 mW
+    GA_08 (USPM24P, RTL93xx): 400,000 mW
+    GA_09 (USL16LP, RTL838x): 45,000 mW
+
+======= TS-10: CPU/Memory (snapshot) =======
+  GA_02: CPU 3.40/3.29/3.23  RAM 261/500MB (52%)
+  GA_03: CPU 1.24/2.00/1.61  RAM 74/127MB (58%)
+  GA_04: CPU 3.14/3.10/3.02  RAM 249/500MB (49%)
+  GA_05: CPU 1.19/1.23/1.15  RAM 100/500MB (20%)
+  GA_06: CPU 0.39/0.35/0.27  RAM 282/2060MB (13%)
+  GA_07: CPU 0.45/1.21/1.01  RAM 40/124MB (31%)
+  GA_08: CPU 1.56/1.72/1.48  RAM 93/514MB (18%)
+  GA_09: CPU 1.07/2.12/1.53  RAM 73/127MB (57%)
+  GA_10: CPU 2.51/2.46/2.12  RAM 167/256MB (65%)
+  NOTE: BCM5616x high CPU (3.1-3.4) consistent with prior 7.5.0 baseline (switchdrvr sirq)
